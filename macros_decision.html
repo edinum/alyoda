@@ -1,0 +1,91 @@
+<CONTENT VERSION="1.0" LANG="fr" CHARSET="utf-8"/>
+
+/**
+ * Initialisation de la page.
+ */
+<DEFMACRO NAME="DECISION_INIT">
+	<!--[ Dépendances additionnelles ]-->
+	<USE MACROFILE="macros_article.html" />
+
+	<!--[ Appel de la macro d'initialisation des articles ]-->
+	<MACRO NAME="ARTICLE_INIT"/>
+</DEFMACRO>
+
+/**
+ * Macro principale appelée par le template.
+ */
+<DEFMACRO NAME="DECISION_MAIN">
+	<FUNC NAME="NAV_ENTITIES" />
+	<MACRO NAME="DECISION_HEADER" />
+	<MACRO NAME="DECISION_RACCOURCIS" />
+	<MACRO NAME="DECISION_RESUMES" />
+	<MACRO NAME="DECISION_MOTSCLES" />
+	<MACRO NAME="DECISION_POURCITER" />
+	<MACRO NAME="DECISION_LICENSE" />
+	<FUNC NAME="NAV_ENTITIES" SHOW_BUTTONS="1" />
+</DEFMACRO>
+
+/**
+ * Header du document.
+ */
+<DEFMACRO NAME="DECISION_HEADER">
+	<header class="article__header col-12 col-lg-10">
+		<!--[ Titre du document ]-->
+		<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
+
+		<!--[ Sous-titre du document ]-->
+		<IF COND="[#SOUSTITRE]">
+			<p class="main-subtitle article__subtitle">[#SOUSTITRE|removenotes]</p>
+		</IF>
+
+		<!--[ Titres alternatifs ]-->
+		<IF COND="[#ALTERTITRE]">
+			<div class="main-altertitle article__altertitle">
+				<LET VAR="value">[#ALTERTITRE]</LET>
+				<LOOP NAME="mltext">
+					<p lang="[#LANG]">[#VALUE|removenotes]</p>
+				</LOOP>
+			</div>
+		</IF>
+
+		<!--[ DOI ]-->
+		<IF COND="[%PREFIXEDOI] AND [#TYPE] EQ 'article'">
+			<p class="article__doi"><a href="https://dx.doi.org/[%PREFIXEDOI][#ID]">DOI&nbsp;: [%PREFIXEDOI][#ID]</a></p>
+		</IF>
+	</header>
+</DEFMACRO>
+
+/**
+ * Affichage de la barre de raccourcis vers les sections des articles.
+ */
+<DEFMACRO NAME="DECISION_RACCOURCIS">
+	<MACRO NAME="ARTICLE_RACCOURCIS" />
+</DEFMACRO>
+
+/**
+ * Section résumés.
+ */
+<DEFMACRO NAME="DECISION_RESUMES">
+	<MACRO NAME="ARTICLE_RESUMES" />
+</DEFMACRO>
+
+/**
+ * Section indexes liés au document.
+ */
+<DEFMACRO NAME="DECISION_MOTSCLES">
+	<MACRO NAME="ARTICLE_MOTSCLES" />
+</DEFMACRO>
+
+/**
+ * Section "Pour citer"
+ */
+<DEFMACRO NAME="DECISION_POURCITER">
+	<MACRO NAME="ARTICLE_POURCITER" />
+</DEFMACRO>
+
+/**
+ * Section droits d'auteur.
+ */
+<DEFMACRO NAME="DECISION_LICENSE">
+	<MACRO NAME="ARTICLE_LICENSE" />
+</DEFMACRO>

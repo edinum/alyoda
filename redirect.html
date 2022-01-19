@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="[#OPTIONS.METADONNEESSITE.LANGUEPRINCIPALE|defaultvalue([#SITELANG])]">
+<head>
+	<LOOP NAME="redirect" TABLE="decisions" WHERE="numerodocument EQ '[#DOCUMENT|reg_replace('/[^0-9]+/', '')]'" SELECT="id">
+		<DO>
+			<meta http-equiv="refresh" content="0; URL=[#ID|makeurlwithid]" />
+		</DO>
+		<ALTERNATIVE>
+			<meta http-equiv="refresh" content="0; URL=./?page=404" />
+		</ALTERNATIVE>
+	</LOOP>
+</head>
+<body>
+</body>
+</html>

@@ -221,7 +221,8 @@
  * Auteurs du texte enfant.
  */
 <DEFMACRO NAME="DECISION_TEXTE_AUTEURS">
-	<!-- TODO : SECTION_ID="authors-infos" -->
+	<LET VAR="idtexte">[#ID]</LET>
+
 	<LOOP NAME="decision_texte_auteurs" 
 		SELECT="persons.id" 
 		TABLE="relations, persons" 
@@ -230,22 +231,14 @@
 		
 		<BEFORE>
 			<section class="article__persons-infos col-12 col-lg-10">
-				<IF COND="[#TYPE] EQ 'traducteur'">
-					<LET VAR="TITRE_SECTION"><IF COND="[#NBRESULTATS] GT 1">[@TRADUCTEURS]<ELSE/>[@TRADUCTEUR]</IF></LET>
-				<ELSEIF COND="[#TYPE] EQ 'editeurscientifique'">
-					<LET VAR="TITRE_SECTION"><IF COND="[#NBRESULTATS] GT 1">[@EDITEURS_SCIENTIFIQUES]<ELSE/>[@EDITEUR_SCIENTIFIQUE]</IF></LET>
-				<ELSE />
-					<LET VAR="TITRE_SECTION"><IF COND="[#NBRESULTATS] GT 1">[@AUTEURS]<ELSE/>[@AUTEUR]</IF></LET>
-				</IF>
-				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[#TITRE_SECTION]" SECTION_ID="[#SECTION_ID]" />
 				<div class="article__persons-infos-contents">
 		</BEFORE>
 
 		<DO>
-			<LOOP NAME="article_description_personnes_auteur" 
+			<LOOP NAME="decision_texte_auteurs_auteur" 
 				SELECT="idperson, nomfamille, prenom, description, courriel" 
 				TABLE="auteurs" 
-				WHERE="id = '[#ID]' AND iddocument='[%ID]'">
+				WHERE="id = '[#ID]' AND iddocument='[#IDTEXTE]'">
 
 				<h3 class="article__persons-infos-identity">
 					<a href="[#IDPERSON|makeurlwithid]">[#PRENOM] <span class="family-name">[#NOMFAMILLE]</span></a>
@@ -263,9 +256,6 @@
 					<a class="article__person-email" href="mailto:[#COURRIEL]">[#COURRIEL]</a>
 				</IF>
 				<MACRO NAME="ARTICLE_AUTEUR_IDNO" />
-				<IF COND="[#TYPE] EQ 'auteur'">
-					<MACRO NAME="ARTICLE_DU_MEME_AUTEUR" />
-				</IF>
 			</LOOP>
 		</DO>
 

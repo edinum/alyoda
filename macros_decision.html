@@ -105,9 +105,13 @@
 		<BEFORE>
 			<MACRO NAME="DECISIONS_TEXTES_TABS"/>
 			<div class="tab-content">
+				<!--[ Résumé de la décision ]-->
+				<div role="tabpanel" id="[#DECISION_TABS_PREFIX]-0" class="tab-pane active" lang="[#LANGUE]" xml:lang="[#LANGUE]">
+					<MACRO NAME="DECISION_TEXTE"/>
+				</div>
 		</BEFORE>
 		<DO>
-			<div role="tabpanel" id="[#DECISION_TABS_PREFIX][#COUNT]" class="tab-pane<IF COND="[#COUNT] EQ 1"> active</IF>" lang="[#LANGUE]" xml:lang="[#LANGUE]">
+			<div role="tabpanel" id="[#DECISION_TABS_PREFIX][#COUNT]" class="tab-pane" lang="[#LANGUE]" xml:lang="[#LANGUE]">
 				<MACRO NAME="DECISION_TEXTE"/>
 			</div>
 		</DO>
@@ -124,10 +128,14 @@
 	<LOOP NAME="decision_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="'[#DECISON_TEXTES_ORDER]'">
 		<BEFORE>
 			<ul class="nav nav-tabs" role="tablist">
+				<!--[ Résumé de la décision ]-->
+				<li class="nav-item">
+					<a class="nav-link active" href="#[#DECISION_TABS_PREFIX]-0" aria-controls="#[#DECISION_TABS_PREFIX]-0" role="tab" data-toggle="tab"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
+				</li>
 		</BEFORE>
 		<DO>
 			<li class="nav-item">
-				<a class="nav-link<IF COND="[#COUNT] EQ 1"> active</IF>" href="#[#DECISION_TABS_PREFIX][#COUNT]" aria-controls="#[#DECISION_TABS_PREFIX][#COUNT]" role="tab" data-toggle="tab"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
+				<a class="nav-link" href="#[#DECISION_TABS_PREFIX][#COUNT]" aria-controls="#[#DECISION_TABS_PREFIX][#COUNT]" role="tab" data-toggle="tab"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
 			</li>
 		</DO>
 		<AFTER>
@@ -155,7 +163,7 @@
 
 	<!--[ Header (titres) ]-->
 	<IF COND="[#TYPE] NE 'decisiondejustice'">
-	<MACRO NAME="DECISION_TEXTE_HEADER"/>
+		<MACRO NAME="DECISION_TEXTE_HEADER"/>
 	</IF>
 
 	<!--[ Auteurs ]-->

@@ -20,6 +20,7 @@
 	<MACRO NAME="DECISION_RACCOURCIS" />
 	<MACRO NAME="DECISION_RESUMES" />
 	<MACRO NAME="DECISION_MOTSCLES" />
+	<MACRO NAME="DECISON_TEXTES"/>
 	<MACRO NAME="DECISION_POURCITER" />
 	<MACRO NAME="DECISION_LICENSE" />
 	<FUNC NAME="NAV_ENTITIES" SHOW_BUTTONS="1" />
@@ -88,4 +89,172 @@
  */
 <DEFMACRO NAME="DECISION_LICENSE">
 	<MACRO NAME="ARTICLE_LICENSE" />
+</DEFMACRO>
+
+/**
+ * Textes enfants de la décision.
+ */
+<DEFMACRO NAME="DECISON_TEXTES">
+	<LET VAR="decision_textes_order">type, rank</LET>
+	<LET VAR="decision_tabs_prefix">decision-textes-tab-</LET>
+
+	<LOOP NAME="decision_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#DECISON_TEXTES_ORDER]'">
+		<BEFORE>
+			<MACRO NAME="DECISIONS_TEXTES_TABS"/>
+			<div class="tab-content">
+		</BEFORE>
+		<DO>
+			<div role="tabpanel" id="[#DECISION_TABS_PREFIX][#COUNT]" class="tab-pane<IF COND="[#COUNT] EQ 1"> active</IF>" lang="[#LANGUE]" xml:lang="[#LANGUE]">
+				<MACRO NAME="DECISION_TEXTE"/>
+			</div>
+		</DO>
+		<AFTER>
+			</div>
+		</AFTER>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Onglets des textes enfants de la décision.
+ */
+<DEFMACRO NAME="DECISIONS_TEXTES_TABS">
+	<div class="article_text__section article_text__section--border">
+		<div class="row">
+			<div class="col col-md-3">
+				<FUNC NAME="BASE_SECTION_HEADER" NO_ARROW="TRUE" TITLE="[@TEXTES]" SECTION_ID="text" />
+			</div>
+			<div class="col-7 col-md-8 article_text__section--buttons">
+				<MACRO NAME="ARTICLE_BOUTONS" />
+			</div>
+			<div class="col-1">
+			<a class="section-header-arrow" href="#main-content"><img class="icon icon_arrow_top" title="arrow top" src="tpl/public/icons/arrow-top.svg" /></a>
+			</div>
+		</div>
+	</div>
+
+
+	<LOOP NAME="decision_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="'[#DECISON_TEXTES_ORDER]'">
+		<BEFORE>
+			<ul class="nav nav-tabs" role="tablist">
+		</BEFORE>
+		<DO>
+			<li class="nav-item">
+				<a class="nav-link<IF COND="[#COUNT] EQ 1"> active</IF>" href="#[#DECISION_TABS_PREFIX][#COUNT]" aria-controls="#[#DECISION_TABS_PREFIX][#COUNT]" role="tab" data-toggle="tab"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
+			</li>
+		</DO>
+		<AFTER>
+			</ul>
+		</AFTER>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Récupérer le titre d'un type dans la langue du site.
+ * @param {string} type - Type.
+ */
+<DEFFUNC NAME="DECISION_GET_TYPE_TITLE" REQUIRED="type">
+	<LOOP NAME="decision_get_type_title" TABLE="types" SELECT="title, altertitle" WHERE="type='[#TYPE]'" LIMIT="0,1">
+		<IF COND="[#ALTERTITLE:#SITELANG]"/>[#ALTERTITLE:#SITELANG]<ELSE/>[#TITLE]</IF>
+	</LOOP>
+</DEFFUNC>
+
+/**
+ * Texte enfant.
+ */
+<DEFMACRO NAME="DECISION_TEXTE">
+	<!--[ Header (titres) ]-->
+	<MACRO NAME="DECISION_TEXTE_HEADER"/>
+
+	<!--[ Auteurs ]-->
+	<MACRO NAME="DECISION_TEXTE_AUTEURS"/>
+
+	<!--[ Chapo ]-->
+	<MACRO NAME="ARTICLE_CHAPO" />
+
+	<!--[ Texte intégral ]-->
+	<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEREMERCIEMENTS] NE 'bottom' AND [#REMERCIEMENTS]">[#REMERCIEMENTS]</IF>
+	[#TEXTE|removenotes|tocss('heading')|illustrations(800)|media]
+	<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEREMERCIEMENTS] EQ 'bottom' AND [#REMERCIEMENTS]">[#REMERCIEMENTS]</IF>
+</DEFMACRO>
+
+/**
+ * Header du texte enfant.
+ */
+<DEFMACRO NAME="DECISION_TEXTE_HEADER">
+	<!--[ Titre du document ]-->
+	<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
+
+	<!--[ Sous-titre du document ]-->
+	<IF COND="[#SOUSTITRE]">
+		<p class="main-subtitle article__subtitle">[#SOUSTITRE|removenotes]</p>
+	</IF>
+
+	<!--[ Titres alternatifs ]-->
+	<IF COND="[#ALTERTITRE]">
+		<div class="main-altertitle article__altertitle">
+			<LET VAR="value">[#ALTERTITRE]</LET>
+			<LOOP NAME="mltext">
+				<p lang="[#LANG]">[#VALUE|removenotes]</p>
+			</LOOP>
+		</div>
+	</IF>
+</DEFMACRO>
+
+/**
+ * Auteurs du texte enfant.
+ */
+<DEFMACRO NAME="DECISION_TEXTE_AUTEURS">
+	<!-- TODO : SECTION_ID="authors-infos" -->
+	<LOOP NAME="decision_texte_auteurs" 
+		SELECT="persons.id" 
+		TABLE="relations, persons" 
+		WHERE="id1 = '[#ID]' AND id2 = persons.id AND nature = 'G' AND type = 'auteur'"
+		ORDER="degree">
+		
+		<BEFORE>
+			<section class="article__persons-infos col-12 col-lg-10">
+				<IF COND="[#TYPE] EQ 'traducteur'">
+					<LET VAR="TITRE_SECTION"><IF COND="[#NBRESULTATS] GT 1">[@TRADUCTEURS]<ELSE/>[@TRADUCTEUR]</IF></LET>
+				<ELSEIF COND="[#TYPE] EQ 'editeurscientifique'">
+					<LET VAR="TITRE_SECTION"><IF COND="[#NBRESULTATS] GT 1">[@EDITEURS_SCIENTIFIQUES]<ELSE/>[@EDITEUR_SCIENTIFIQUE]</IF></LET>
+				<ELSE />
+					<LET VAR="TITRE_SECTION"><IF COND="[#NBRESULTATS] GT 1">[@AUTEURS]<ELSE/>[@AUTEUR]</IF></LET>
+				</IF>
+				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[#TITRE_SECTION]" SECTION_ID="[#SECTION_ID]" />
+				<div class="article__persons-infos-contents">
+		</BEFORE>
+
+		<DO>
+			<LOOP NAME="article_description_personnes_auteur" 
+				SELECT="idperson, nomfamille, prenom, description, courriel" 
+				TABLE="auteurs" 
+				WHERE="id = '[#ID]' AND iddocument='[%ID]'">
+
+				<h3 class="article__persons-infos-identity">
+					<a href="[#IDPERSON|makeurlwithid]">[#PRENOM] <span class="family-name">[#NOMFAMILLE]</span></a>
+				</h3>
+				<IF COND="[#DESCRIPTION]">
+					<IF COND="false SNE [#DESCRIPTION|strpos('<br')]">
+						[#DESCRIPTION]
+					<ELSEIF COND="false SNE [#DESCRIPTION|strpos('<p')]" />
+						[#DESCRIPTION|replace('class="description','class="article__person-description')]
+					<ELSE />
+						<p class="article__person-description">[#DESCRIPTION]</p>
+					</IF>
+				</IF>
+				<IF COND="[#COURRIEL]">
+					<a class="article__person-email" href="mailto:[#COURRIEL]">[#COURRIEL]</a>
+				</IF>
+				<MACRO NAME="ARTICLE_AUTEUR_IDNO" />
+				<IF COND="[#TYPE] EQ 'auteur'">
+					<MACRO NAME="ARTICLE_DU_MEME_AUTEUR" />
+				</IF>
+			</LOOP>
+		</DO>
+
+		<AFTER>
+				</div>
+			</section>
+		</AFTER>
+	</LOOP>
 </DEFMACRO>

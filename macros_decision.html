@@ -9,6 +9,9 @@
 
 	<!--[ Appel de la macro d'initialisation des articles ]-->
 	<MACRO NAME="ARTICLE_INIT"/>
+
+	<!--[ Calcul des boutons de partage de la décision ]-->
+	<LET VAR="decision_liens_partage"><MACRO NAME="ARTICLE_LIENS_PARTAGE" /></LET>
 </DEFMACRO>
 
 /**
@@ -118,21 +121,6 @@
  * Onglets des textes enfants de la décision.
  */
 <DEFMACRO NAME="DECISIONS_TEXTES_TABS">
-	<div class="article_text__section article_text__section--border">
-		<div class="row">
-			<div class="col col-md-3">
-				<FUNC NAME="BASE_SECTION_HEADER" NO_ARROW="TRUE" TITLE="[@TEXTES]" SECTION_ID="text" />
-			</div>
-			<div class="col-7 col-md-8 article_text__section--buttons">
-				<MACRO NAME="ARTICLE_BOUTONS" />
-			</div>
-			<div class="col-1">
-			<a class="section-header-arrow" href="#main-content"><img class="icon icon_arrow_top" title="arrow top" src="tpl/public/icons/arrow-top.svg" /></a>
-			</div>
-		</div>
-	</div>
-
-
 	<LOOP NAME="decision_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="'[#DECISON_TEXTES_ORDER]'">
 		<BEFORE>
 			<ul class="nav nav-tabs" role="tablist">
@@ -162,8 +150,13 @@
  * Texte enfant.
  */
 <DEFMACRO NAME="DECISION_TEXTE">
+	<!--[ Boutons de partage ]-->
+	<MACRO NAME="DECISION_BOUTONS" />
+
 	<!--[ Header (titres) ]-->
+	<IF COND="[#TYPE] NE 'decisiondejustice'">
 	<MACRO NAME="DECISION_TEXTE_HEADER"/>
+	</IF>
 
 	<!--[ Auteurs ]-->
 	<MACRO NAME="DECISION_TEXTE_AUTEURS"/>
@@ -175,6 +168,22 @@
 	<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEREMERCIEMENTS] NE 'bottom' AND [#REMERCIEMENTS]">[#REMERCIEMENTS]</IF>
 	[#TEXTE|removenotes|tocss('heading')|illustrations(800)|media]
 	<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEREMERCIEMENTS] EQ 'bottom' AND [#REMERCIEMENTS]">[#REMERCIEMENTS]</IF>
+</DEFMACRO>
+
+/**
+ * Boutons du header (facsimilé, print, partage).
+ */
+<DEFMACRO NAME="DECISION_BOUTONS">
+	<div class="article__buttons">
+		<ul class="article__buttons-list nav nav-pills">
+			<!--[ Bouton fac-similé ]-->
+			<MACRO NAME="ARTICLE_BOUTON_PDF" />
+			<!--[ Bouton de téléchargement de la TEI ]-->
+			<MACRO NAME="ARTICLE_BOUTON_TEI" />
+			<!--[ Boutons de partage (de la décision parente) ]-->
+			[#DECISION_LIENS_PARTAGE]
+		</ul>
+	</div>
 </DEFMACRO>
 
 /**

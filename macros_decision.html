@@ -72,7 +72,8 @@
 <DEFMACRO NAME="DECISION_ARRETS">
 	<LOOP NAME="decision_arrets" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions" ORDER="rank">
 		<BEFORE>
-			<section class="decision__arrets">
+			<section class="decision__arrets col-12 col-lg-10 px-0">
+				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@ARRETS]" NO_ARROW="TRUE" SECTION_ID="arrets" />
 		</BEFORE>
 		<DO>
 			<!--[ Récupérer les index dans un array ]-->
@@ -169,12 +170,15 @@
 
 	<LOOP NAME="decision_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#DECISON_TEXTES_ORDER]'">
 		<BEFORE>
-			<MACRO NAME="DECISIONS_TEXTES_TABS"/>
-			<div class="tab-content">
-				<!--[ Résumé de la décision ]-->
-				<div role="tabpanel" id="[#DECISION_TABS_PREFIX]-0" class="tab-pane active" lang="[#LANGUE]" xml:lang="[#LANGUE]">
-					<MACRO NAME="DECISION_TEXTE"/>
-				</div>
+			<section class="decision__textes">
+				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTES]" NO_ARROW="TRUE" SECTION_ID="textes" />
+				<MACRO NAME="DECISIONS_TEXTES_TABS"/>
+				<div class="tab-content">
+					<!--[ Résumé de la décision ]-->
+					<div role="tabpanel" id="[#DECISION_TABS_PREFIX]-0" class="tab-pane active" lang="[#LANGUE]" xml:lang="[#LANGUE]">
+						<LET VAR="titre"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></LET>
+						<MACRO NAME="DECISION_TEXTE"/>
+					</div>
 		</BEFORE>
 		<DO>
 			<div role="tabpanel" id="[#DECISION_TABS_PREFIX][#COUNT]" class="tab-pane" lang="[#LANGUE]" xml:lang="[#LANGUE]">
@@ -182,7 +186,8 @@
 			</div>
 		</DO>
 		<AFTER>
-			</div>
+				</div>
+			</section>
 		</AFTER>
 	</LOOP>
 </DEFMACRO>
@@ -228,35 +233,38 @@
 	<MACRO NAME="DECISION_BOUTONS" />
 
 	<!--[ Header (titres) ]-->
-	<IF COND="[#TYPE] NE 'decisiondejustice'">
-		<MACRO NAME="DECISION_TEXTE_HEADER"/>
-	</IF>
+	<MACRO NAME="DECISION_TEXTE_HEADER"/>
 
 	<!--[ Auteurs ]-->
 	<MACRO NAME="DECISION_TEXTE_AUTEURS"/>
 
-	<!--[ Chapo ]-->
-	<MACRO NAME="ARTICLE_CHAPO" />
+	<!--[ Texte ]-->
+	<section class="article__text">
+		<MACRO NAME="ARTICLE_TEXTE_CONTENTS"/>
+	</section>
+	<MACRO NAME="ARTICLE_BIBLIOGRAPHIE" />
+	<MACRO NAME="ARTICLE_ANNEXE" />
 
-	<!--[ Texte intégral ]-->
-	<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEREMERCIEMENTS] NE 'bottom' AND [#REMERCIEMENTS]">[#REMERCIEMENTS]</IF>
-	[#TEXTE|removenotes|tocss('heading')|illustrations(800)|media]
-	<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEREMERCIEMENTS] EQ 'bottom' AND [#REMERCIEMENTS]">[#REMERCIEMENTS]</IF>
+	<!--[ Notes ]-->
+	<MACRO NAME="ARTICLE_NOTESBASPAGE" />
+	<MACRO NAME="ARTICLE_NOTEFIN" />
 </DEFMACRO>
 
 /**
  * Boutons du header (facsimilé, print, partage).
  */
 <DEFMACRO NAME="DECISION_BOUTONS">
-	<div class="article__buttons">
-		<ul class="article__buttons-list nav nav-pills">
-			<!--[ Bouton fac-similé ]-->
-			<MACRO NAME="ARTICLE_BOUTON_PDF" />
-			<!--[ Bouton de téléchargement de la TEI ]-->
-			<MACRO NAME="ARTICLE_BOUTON_TEI" />
-			<!--[ Boutons de partage (de la décision parente) ]-->
-			[#DECISION_LIENS_PARTAGE]
-		</ul>
+	<div class="row">
+		<div class="article__buttons ml-auto mr-0">
+			<ul class="article__buttons-list nav nav-pills">
+				<!--[ Bouton fac-similé ]-->
+				<MACRO NAME="ARTICLE_BOUTON_PDF" />
+				<!--[ Bouton de téléchargement de la TEI ]-->
+				<MACRO NAME="ARTICLE_BOUTON_TEI" />
+				<!--[ Boutons de partage (de la décision parente) ]-->
+				[#DECISION_LIENS_PARTAGE]
+			</ul>
+		</div>
 	</div>
 </DEFMACRO>
 

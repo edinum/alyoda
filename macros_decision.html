@@ -181,6 +181,12 @@
 				</div>
 			</section>
 		</AFTER>
+		<ALTERNATIVE>
+			<!--[ Texte de la décision uniquement ]-->
+			<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTE]" NO_ARROW="TRUE" SECTION_ID="decision-textes" />
+			<LET VAR="titre"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></LET>
+			<MACRO NAME="DECISION_TEXTE"/>
+		</ALTERNATIVE>
 	</LOOP>
 </DEFMACRO>
 

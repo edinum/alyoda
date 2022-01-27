@@ -12,6 +12,9 @@
  * Cette macro est appelée en dernier lors de l'initialisation des page. Elle permet donc d'écraser n'importe quelle variable.
  */
 <DEFMACRO NAME="CUSTOM_INIT">
+	<!--[ Inclusion des surcharges pour les decisions. Ne pas supprimer. ]-->
+ <USE MACROFILE="macros_alyoda.html" />
+
 	<!--[ Option : chemin vers le logo du site. Quand cette variable n'est pas définie le titre du site s'affiche à la place du logo ]-->
 	<!--[ <LET VAR="site_logo_path" GLOBAL="1">tpl/images/logo.svg</LET> ]-->
 
@@ -22,5 +25,5 @@
 	<LET VAR="custom_script_path" GLOBAL="1" ></LET>
 
 	<!--[ Mode développement : passer cette variable un 1 pour exécuter LESS directement dans le navigateur pendant l'intégration. ATTENTION, NE PAS UTILISER EN PRODUCTION ! ]-->
-	<LET VAR="dev_mode" GLOBAL="1"></LET>
+	<LET VAR="dev_mode" GLOBAL="1">1</LET>
 </DEFMACRO>

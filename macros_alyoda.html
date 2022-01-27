@@ -1,0 +1,157 @@
+<CONTENT VERSION="1.0" LANG="fr" CHARSET="utf-8"/>
+
+/**
+ * ALYODA : NOUVELLES MACROS
+ * =========================
+ */
+
+/**
+ * Création de variables avec les index liés à l'arrêt.
+ */
+<DEFMACRO NAME="ALYODA_ARRETS_ENTRIES">
+	<LET ARRAY="arret_entries" GLOBAL="1"></LET>
+	<LOOP NAME="alyoda_arrets_entries" 
+		TABLE="relations, entries, entrytypes" 
+		SELECT="DISTINCT(idtype), title, altertitle, type AS entrytype" 
+		WHERE="id1 = '[#ID]' AND id2 = entries.id AND entries.idtype = entrytypes.id AND entrytypes.class = 'indexes'">
+		<LET ARRAY="arret_entries.#ENTRYTYPE" GLOBAL="1">
+			<LOOP NAME="alyoda_arrets_entries_item" 
+				TABLE="entries" SELECT="id, g_name" 
+				WHERE="idtype = '[#IDTYPE]' AND iddocument = '[#ID]'" 
+				ORDER="degree">
+				<IF COND="[#COUNT] GT 1">, </IF><a href="[#ID|makeurlwithid]">[#G_NAME]</a>
+			</LOOP>
+		</LET>
+	</LOOP>
+	<LET VAR="juridictions">[%ARRET_ENTRIES.JURIDICTIONS]</LET>
+	<LET VAR="lebon">[%ARRET_ENTRIES.LEBON]</LET>
+</DEFMACRO>
+
+/**
+ * Sous-titre de la décision dans le sommaire des publications.
+ */
+<DEFMACRO NAME="ALYODA_SOUSTITRE_DECISION">
+	<LOOP NAME="alyoda_soustitre_decision" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date" ORDER="rank">
+		<!--[ Récupérer les index dans des variables ]-->
+		<MACRO NAME="ALYODA_ARRETS_ENTRIES"/>
+		<p class="toc__subtitle">[#JURIDICTIONS|textebrut] – N°&nbsp;[#NUMERO] – [#DATE|humandate] – [#LEBON|textebrut]</p>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * ALYODA : SURCHARGES DE LA NOVA
+ * ==============================
+ */
+
+/**
+ * Affiche le sommaire récursif d'une publication (sauf type collection).
+ * EDIT: Affichage de la classe decisions.
+ */
+<DEFMACRO NAME="PUBLICATION_SOMMAIRE">
+	<LET VAR="id_publi">[#ID]</LET>
+	<LET VAR="parent_is_rubrique"><IF COND="([#TYPE] EQ 'rubrique' OR [#TYPE] EQ 'rubriqueannuelle') AND [#DATEPUBLI|isadate]">1</IF></LET>
+
+	<LOOP NAME="publication_sommaire"
+		TABLE="entities, types"
+		SELECT="id, class, type"
+		WHERE="idparent = '[#ID]' AND id [#NOT_IN_TRADUCTIONS_PARENT_UNIQUE] AND type NOT IN ('fluxdesyndication','imageaccroche','rubriqueannuelle', 'imageaccrochelibrairie') AND type NOT LIKE '%annexe%' AND entities.idtype = types.id"
+		ORDER="entities.rank">
+
+		<BEFORE>
+			<ul class="toc__contents toc__contents--sommaire">
+		</BEFORE>
+
+		<DO>
+			<LOOP NAME="publication_sommaire_item" TABLE="#_TP_[#CLASS]" WHERE="identity = '[#ID]'">
+				<LET VAR="publi_dir"><FUNC NAME="BASE_GET_LANG_DIR" LANG="[#LANGUE]"/></LET>
+				<li class="toc__li toc__li--class-[#CLASS]" lang="[#LANGUE]" dir="[#PUBLI_DIR]">
+					<SWITCH TEST="[#CLASS]">
+						<!--[ Publications ]-->
+						<DO CASE="publications">
+							<IF COND="[#TYPE] EQ 'rubrique' OR [#TYPE] EQ 'souspartie'">
+								<div class="toc__header">
+									<!--[ Titre ]-->
+									<h2 class="toc__publi-title">[#TITRE]</h2>
+									<!--[ Sous-titre ]-->
+									<IF COND="[#SOUSTITRE]">
+										<div class="toc__publi-subtitle">
+											[#SOUSTITRE]
+										</div>
+									</IF>
+									<!--[ Titres alternatifs ]-->
+									<IF COND="[#ALTERTITRE]">
+										<div class="toc__publi-altertitle">
+											[#ALTERTITRE|replace('r2r:ml', 'p')]
+										</div>
+									</IF>
+									<!--[ Directeur de la publication ]-->
+									<FUNC NAME="BASE_LISTER_PERSONNES" TYPE="directeurdelapublication" WRAP_CLASS="toc__director" PREPEND="[@DIRECTEUR_PUBLICATION] " />
+									<!--[ Introduction ]-->
+									<FUNC NAME="BASE_ML_ONGLETS" TAB_TEXTE="[#INTRODUCTION]" TAB_ID="introduction-[#ID]" />
+								</div>
+								<!--[ Sommaire ]-->
+								<LET VAR="id_publi">[#ID]</LET>
+								<LOOP NAME="publication_sommaire"></LOOP>
+							</IF>
+						</DO>
+						<!--[ Textes ]-->
+						<DO CASE="textes">
+							<FUNC NAME="PUBLICATION_LI_TEXTE" AFFICHER_DATEPUBLI="[#PARENT_IS_RUBRIQUE]" />
+						</DO>
+
+						<!--[ Decisions ]-->
+						<DO CASE="decisions">
+							<FUNC NAME="PUBLICATION_LI_TEXTE" />
+						</DO>
+					</SWITCH>
+				</li>
+			</LOOP>
+		</DO>
+
+		<AFTER>
+				<FUNC NAME="PUBLICATION_ALIASES" ID_PUBLI="[#ID_PUBLI]" WRAP_TAG="li" />
+			</ul>
+		</AFTER>
+
+		<ALTERNATIVE>
+			<FUNC NAME="PUBLICATION_ALIASES" ID_PUBLI="[#ID_PUBLI]" />
+		</ALTERNATIVE>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Affiche le titre, le sous-titre d'un document avec la mention "texte intégral", et le numéro du doc.
+ * EDIT: Prise en compte des document de la classe decisions.
+ * @param {boolean} [afficher_soustitre] - Affichage du sous-titre.
+ * @param {boolean} [afficher_titres_traduits] - Affichage des titres traduits.
+ * @param {boolean} [afficher_datepubli] - Affichage de la date de publication.
+ */
+<DEFFUNC NAME="PUBLICATION_LI_DOCUMENT" OPTIONAL="afficher_soustitre, afficher_titres_traduits, afficher_datepubli">
+	<a class="toc__link" href="[#ID|makeurlwithid]">
+		<!--[ Titre ]-->
+		<p class="toc__title">[#TITRE|removenotes]</p>
+		
+		<!--[ Sous-titre ]-->
+		<IF COND="[#AFFICHER_SOUSTITRE]">
+			<IF COND="[#SOUSTITRE]">
+				<p class="toc__subtitle">[#SOUSTITRE|removenotes]</p>
+			<ELSEIF COND="[#CLASS] EQ 'decisions'">
+				<MACRO NAME="ALYODA_SOUSTITRE_DECISION"/>
+			</IF>
+		</IF>
+		
+		<!--[ Titres traduits]-->
+		<IF COND="[#AFFICHER_TITRES_TRADUITS] AND [#ALTERTITRE] LIKE /<r2r:ml lang=\" ([a-z]+)\"/"> 
+			<div class="toc__altertitle">
+				<LOOP NAME="foreach" ARRAY="[#MATCHES.1]">
+					<p xml:lang="[#VALUE]" lang="[#VALUE]">[#ALTERTITRE:#VALUE|removenotes]</p>
+				</LOOP>
+			</div>
+		</IF>
+
+		<!--[ Date de publication si publié dans une rubrique électronique ]-->
+		<IF COND="[#AFFICHER_DATEPUBLI]">
+			<p class="toc__datepubli">[#DATEPUBLI|humandate]</p>
+		</IF>
+	</a>
+</DEFFUNC>

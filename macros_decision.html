@@ -86,10 +86,8 @@
 				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@ARRETS]" NO_ARROW="TRUE" SECTION_ID="decision-arrets" />
 		</BEFORE>
 		<DO>
-			<!--[ Récupérer les index dans un array ]-->
-			<MACRO NAME="DECISION_ARRETS_ENTRIES"/>
-			<LET VAR="juridictions">[%ARRET_ENTRIES.JURIDICTIONS]</LET>
-			<LET VAR="lebon">[%ARRET_ENTRIES.LEBON]</LET>
+			<!--[ Récupérer les index dans des variables ]-->
+			<MACRO NAME="ALYODA_ARRETS_ENTRIES"/>
 
 			<!--[ Lier vers le fichier PDF, sinon vers le lien ]-->
 			<IF COND="[#FICHIER]">
@@ -120,26 +118,6 @@
 		<AFTER>
 			</section>
 		</AFTER>
-	</LOOP>
-</DEFMACRO>
-
-/**
- * Création de variables avec les index liés à l'arrêt.
- */
-<DEFMACRO NAME="DECISION_ARRETS_ENTRIES">
-	<LET ARRAY="arret_entries" GLOBAL="1"></LET>
-	<LOOP NAME="decision_arrets_entries" 
-		TABLE="relations, entries, entrytypes" 
-		SELECT="DISTINCT(idtype), title, altertitle, type AS entrytype" 
-		WHERE="id1 = '[#ID]' AND id2 = entries.id AND entries.idtype = entrytypes.id AND entrytypes.class = 'indexes'">
-		<LET ARRAY="arret_entries.#ENTRYTYPE" GLOBAL="1">
-			<LOOP NAME="decision_arrets_entries_item" 
-				TABLE="entries" SELECT="id, g_name" 
-				WHERE="idtype = '[#IDTYPE]' AND iddocument = '[#ID]'" 
-				ORDER="degree">
-				<IF COND="[#COUNT] GT 1">, </IF><a href="[#ID|makeurlwithid]">[#G_NAME]</a>
-			</LOOP>
-		</LET>
 	</LOOP>
 </DEFMACRO>
 

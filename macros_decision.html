@@ -83,7 +83,7 @@
 	<LOOP NAME="decision_arrets" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions" ORDER="rank">
 		<BEFORE>
 			<section class="decision__arrets col-12 col-lg-10 px-0">
-				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@ARRETS]" NO_ARROW="TRUE" SECTION_ID="arrets" />
+				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@ARRETS]" NO_ARROW="TRUE" SECTION_ID="decision-arrets" />
 		</BEFORE>
 		<DO>
 			<!--[ Récupérer les index dans un array ]-->
@@ -185,7 +185,7 @@
 	<LOOP NAME="decision_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#DECISON_TEXTES_ORDER]'">
 		<BEFORE>
 			<section class="decision__textes">
-				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTES]" NO_ARROW="TRUE" SECTION_ID="textes" />
+				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTES]" NO_ARROW="TRUE" SECTION_ID="decision-textes" />
 				<MACRO NAME="DECISIONS_TEXTES_TABS"/>
 				<div class="tab-content">
 					<!--[ Résumé de la décision ]-->
@@ -253,7 +253,7 @@
 	<MACRO NAME="DECISION_TEXTE_AUTEURS"/>
 
 	<!--[ Texte ]-->
-	<section class="article__text">
+	<section class="decision__text article__text">
 		<MACRO NAME="DECISION_TEXTE_CONTENTS"/>
 	</section>
 	<MACRO NAME="ARTICLE_BIBLIOGRAPHIE" />
@@ -268,17 +268,15 @@
  * Boutons du header (facsimilé, print, partage).
  */
 <DEFMACRO NAME="DECISION_BOUTONS">
-	<div class="row">
-		<div class="article__buttons ml-auto mr-0">
-			<ul class="article__buttons-list nav nav-pills">
-				<!--[ Bouton fac-similé ]-->
-				<MACRO NAME="ARTICLE_BOUTON_PDF" />
-				<!--[ Bouton de téléchargement de la TEI ]-->
-				<MACRO NAME="ARTICLE_BOUTON_TEI" />
-				<!--[ Boutons de partage (de la décision parente) ]-->
-				[#DECISION_LIENS_PARTAGE]
-			</ul>
-		</div>
+	<div class="decision__buttons">
+		<ul class="decision__buttons-list nav nav-pills">
+			<!--[ Bouton fac-similé ]-->
+			<MACRO NAME="ARTICLE_BOUTON_PDF" />
+			<!--[ Bouton de téléchargement de la TEI ]-->
+			<MACRO NAME="ARTICLE_BOUTON_TEI" />
+			<!--[ Boutons de partage (de la décision parente) ]-->
+			[#DECISION_LIENS_PARTAGE]
+		</ul>
 	</div>
 </DEFMACRO>
 
@@ -286,23 +284,25 @@
  * Header du texte enfant.
  */
 <DEFMACRO NAME="DECISION_TEXTE_HEADER">
-	<!--[ Titre du document ]-->
-	<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
+	<section class="decision__texte-header col-12 col-lg-10">
+		<!--[ Titre du document ]-->
+		<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
 
-	<!--[ Sous-titre du document ]-->
-	<IF COND="[#SOUSTITRE]">
-		<p class="main-subtitle article__subtitle">[#SOUSTITRE|removenotes]</p>
-	</IF>
+		<!--[ Sous-titre du document ]-->
+		<IF COND="[#SOUSTITRE]">
+			<p class="main-subtitle article__subtitle">[#SOUSTITRE|removenotes]</p>
+		</IF>
 
-	<!--[ Titres alternatifs ]-->
-	<IF COND="[#ALTERTITRE]">
-		<div class="main-altertitle article__altertitle">
-			<LET VAR="value">[#ALTERTITRE]</LET>
-			<LOOP NAME="mltext">
-				<p lang="[#LANG]">[#VALUE|removenotes]</p>
-			</LOOP>
-		</div>
-	</IF>
+		<!--[ Titres alternatifs ]-->
+		<IF COND="[#ALTERTITRE]">
+			<div class="main-altertitle article__altertitle">
+				<LET VAR="value">[#ALTERTITRE]</LET>
+				<LOOP NAME="mltext">
+					<p lang="[#LANG]">[#VALUE|removenotes]</p>
+				</LOOP>
+			</div>
+		</IF>
+	</section>
 </DEFMACRO>
 
 /**

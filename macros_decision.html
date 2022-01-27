@@ -10,8 +10,18 @@
 	<!--[ Appel de la macro d'initialisation des articles ]-->
 	<MACRO NAME="ARTICLE_INIT"/>
 
+	<!--[ Référence électronique ]-->
+	<LET VAR="reference_electronique" GLOBAL="1" ><MACRO NAME="DECISION_REFERENCE_ELECTRONIQUE" /></LET>
+
 	<!--[ Calcul des boutons de partage de la décision ]-->
 	<LET VAR="decision_liens_partage"><MACRO NAME="ARTICLE_LIENS_PARTAGE" /></LET>
+</DEFMACRO>
+
+/**
+ * Référence électronique (sans [#NUMERODOCUMENT]).
+ */
+<DEFMACRO NAME="DECISION_REFERENCE_ELECTRONIQUE">
+	[%LISTE_AUTEURS]«&nbsp;[#TITRE|removenotes]&nbsp;», <FUNC NAME="BASE_PARU_DANS" CITATION="1" />, [@MIS_EN_LIGNE_LE] [#DATEPUBLI|humandate], [@CONSULTE_LE] <?php echo strftime('%d %B %Y');?>. URL&nbsp;: [#SITEINFOS.URL]/[#ID|makeurlwithid]
 </DEFMACRO>
 
 /**

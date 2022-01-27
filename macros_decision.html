@@ -94,7 +94,11 @@
 					<div class="arret__mentions">[#MENTIONS]</div>
 				</IF>
 
-				<div class="arret__infos">
+				<a class="arret__more-btn" role="button" data-toggle="collapse" href="#arret__infos-[#ID]" aria-expanded="false" aria-controls="arret__infos-[#ID]">
+					[@ARRET_MORE]
+				</a>
+
+				<div id="arret__infos-[#ID]" class="arret__infos collapse">
 					<FUNC NAME="DECISION_ARRET_INFO" TITLE="[@JURIDICTION]" VALUE="[#JURIDICTIONS]"/>
 					<FUNC NAME="DECISION_ARRET_INFO" TITLE="[@NUMERO_DECISION]" VALUE="[#NUMERO]"/>
 					<FUNC NAME="DECISION_ARRET_INFO" TITLE="[@NUMERO_LEGIFRANCE]" VALUE="[#NUMEROLEGIFRANCE]"/>

@@ -44,82 +44,6 @@
  */
 
 /**
- * Affiche le sommaire récursif d'une publication (sauf type collection).
- * EDIT: Affichage de la classe decisions.
- */
-<DEFMACRO NAME="PUBLICATION_SOMMAIRE">
-	<LET VAR="id_publi">[#ID]</LET>
-	<LET VAR="parent_is_rubrique"><IF COND="([#TYPE] EQ 'rubrique' OR [#TYPE] EQ 'rubriqueannuelle') AND [#DATEPUBLI|isadate]">1</IF></LET>
-
-	<LOOP NAME="publication_sommaire"
-		TABLE="entities, types"
-		SELECT="id, class, type"
-		WHERE="idparent = '[#ID]' AND id [#NOT_IN_TRADUCTIONS_PARENT_UNIQUE] AND type NOT IN ('fluxdesyndication','imageaccroche','rubriqueannuelle', 'imageaccrochelibrairie') AND type NOT LIKE '%annexe%' AND entities.idtype = types.id"
-		ORDER="entities.rank">
-
-		<BEFORE>
-			<ul class="toc__contents toc__contents--sommaire">
-		</BEFORE>
-
-		<DO>
-			<LOOP NAME="publication_sommaire_item" TABLE="#_TP_[#CLASS]" WHERE="identity = '[#ID]'">
-				<LET VAR="publi_dir"><FUNC NAME="BASE_GET_LANG_DIR" LANG="[#LANGUE]"/></LET>
-				<li class="toc__li toc__li--class-[#CLASS]" lang="[#LANGUE]" dir="[#PUBLI_DIR]">
-					<SWITCH TEST="[#CLASS]">
-						<!--[ Publications ]-->
-						<DO CASE="publications">
-							<IF COND="[#TYPE] EQ 'rubrique' OR [#TYPE] EQ 'souspartie'">
-								<div class="toc__header">
-									<!--[ Titre ]-->
-									<h2 class="toc__publi-title">[#TITRE]</h2>
-									<!--[ Sous-titre ]-->
-									<IF COND="[#SOUSTITRE]">
-										<div class="toc__publi-subtitle">
-											[#SOUSTITRE]
-										</div>
-									</IF>
-									<!--[ Titres alternatifs ]-->
-									<IF COND="[#ALTERTITRE]">
-										<div class="toc__publi-altertitle">
-											[#ALTERTITRE|replace('r2r:ml', 'p')]
-										</div>
-									</IF>
-									<!--[ Directeur de la publication ]-->
-									<FUNC NAME="BASE_LISTER_PERSONNES" TYPE="directeurdelapublication" WRAP_CLASS="toc__director" PREPEND="[@DIRECTEUR_PUBLICATION] " />
-									<!--[ Introduction ]-->
-									<FUNC NAME="BASE_ML_ONGLETS" TAB_TEXTE="[#INTRODUCTION]" TAB_ID="introduction-[#ID]" />
-								</div>
-								<!--[ Sommaire ]-->
-								<LET VAR="id_publi">[#ID]</LET>
-								<LOOP NAME="publication_sommaire"></LOOP>
-							</IF>
-						</DO>
-						<!--[ Textes ]-->
-						<DO CASE="textes">
-							<FUNC NAME="PUBLICATION_LI_TEXTE" AFFICHER_DATEPUBLI="[#PARENT_IS_RUBRIQUE]" />
-						</DO>
-
-						<!--[ Decisions ]-->
-						<DO CASE="decisions">
-							<FUNC NAME="PUBLICATION_LI_TEXTE" />
-						</DO>
-					</SWITCH>
-				</li>
-			</LOOP>
-		</DO>
-
-		<AFTER>
-				<FUNC NAME="PUBLICATION_ALIASES" ID_PUBLI="[#ID_PUBLI]" WRAP_TAG="li" />
-			</ul>
-		</AFTER>
-
-		<ALTERNATIVE>
-			<FUNC NAME="PUBLICATION_ALIASES" ID_PUBLI="[#ID_PUBLI]" />
-		</ALTERNATIVE>
-	</LOOP>
-</DEFMACRO>
-
-/**
  * Affiche le titre, le sous-titre d'un document avec la mention "texte intégral", et le numéro du doc.
  * EDIT: Prise en compte des document de la classe decisions.
  * @param {boolean} [afficher_soustitre] - Affichage du sous-titre.
@@ -135,7 +59,7 @@
 		<IF COND="[#AFFICHER_SOUSTITRE]">
 			<IF COND="[#SOUSTITRE]">
 				<p class="toc__subtitle">[#SOUSTITRE|removenotes]</p>
-			<ELSEIF COND="[#CLASS] EQ 'decisions'">
+			<ELSEIF COND="[#TYPE] EQ 'decisiondejustice'">
 				<MACRO NAME="ALYODA_SOUSTITRE_DECISION"/>
 			</IF>
 		</IF>

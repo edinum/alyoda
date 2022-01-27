@@ -254,7 +254,7 @@
 
 	<!--[ Texte ]-->
 	<section class="article__text">
-		<MACRO NAME="ARTICLE_TEXTE_CONTENTS"/>
+		<MACRO NAME="DECISION_TEXTE_CONTENTS"/>
 	</section>
 	<MACRO NAME="ARTICLE_BIBLIOGRAPHIE" />
 	<MACRO NAME="ARTICLE_ANNEXE" />
@@ -352,4 +352,33 @@
 			</section>
 		</AFTER>
 	</LOOP>
+</DEFMACRO>
+
+/**
+ * Afficher le texte (sans le filtre tocable).
+ */
+<DEFMACRO NAME="DECISION_TEXTE_CONTENTS">
+	<div class="row">
+		<div class="article__text-contents col-lg-9">
+			<!--[ Image d'accroche ]-->
+			<MACRO NAME="ARTICLE_IMAGEACCROCHE" />
+
+			<!--[ Chapo ]-->
+			<MACRO NAME="ARTICLE_CHAPO" />
+
+			<!--[ Texte intégral ]-->
+			<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEREMERCIEMENTS] NE 'bottom' AND [#REMERCIEMENTS]">[#REMERCIEMENTS]</IF>
+			<IF COND="[#TEXTE_ACCESSIBLE]"/>
+				[#TEXTE|cleanCallNotes|tocss('heading')|illustrations(800)|media]
+			<ELSE />
+				[#TEXTE|removenotes|tocss('heading')|illustrations(800)|cuttext(1000, true)|media]
+				<MACRO NAME="ARTICLE_INFO_BM" />
+			</IF>
+			<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEREMERCIEMENTS] EQ 'bottom' AND [#REMERCIEMENTS]">[#REMERCIEMENTS]</IF>
+		</div>
+		<div id="sidenotes" class="article__sidenotes col-3 d-hidden d-md-visible">
+			[#NOTESBASPAGE|cutnotes(150)]
+			<p class="notesbaspage notesbaspage--more" style="display: none;"><a class="notesbaspage__more-link" href="#">[@NOTES_SUIVANTES]</a></p>
+		</div>
+	</div>
 </DEFMACRO>

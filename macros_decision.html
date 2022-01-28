@@ -89,12 +89,12 @@
 			</IF>
 
 			<div class="decision__arret">
-				<h3 class="arret__title"><a href="[#HREF]" rel="noreferrer">[#JURIDICTIONS|textebrut] – N°&nbsp;[#NUMERO] – [#DATE|humandate]</a></h3>
+				<h3 class="arret__title"><a href="[#HREF]" rel="noreferrer">[#JURIDICTIONS|textebrut] – N°&nbsp;[#NUMERO] – [#DATE|humandate]<FUNC NAME="BASE_ICON" ICON="external-link"></a></h3>
 				<IF COND="[#MENTIONS]">
 					<div class="arret__mentions">[#MENTIONS]</div>
 				</IF>
 
-				<a class="arret__more-btn" role="button" data-toggle="collapse" href="#arret__infos-[#ID]" aria-expanded="false" aria-controls="arret__infos-[#ID]">
+				<a class="arret__more-btn collapsed" role="button" data-toggle="collapse" href="#arret__infos-[#ID]" aria-expanded="false" aria-controls="arret__infos-[#ID]">
 					[@ARRET_MORE]
 				</a>
 

@@ -167,7 +167,7 @@
 				<MACRO NAME="DECISIONS_TEXTES_TABS"/>
 				<div class="tab-content">
 					<!--[ Résumé de la décision ]-->
-					<div role="tabpanel" id="[#DECISION_TABS_PREFIX]-0" class="tab-pane active" lang="[#LANGUE]" xml:lang="[#LANGUE]">
+					<div role="tabpanel" id="[#DECISION_TABS_PREFIX]0" class="tab-pane active" lang="[#LANGUE]" xml:lang="[#LANGUE]">
 						<LET VAR="titre"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></LET>
 						<MACRO NAME="DECISION_TEXTE"/>
 					</div>
@@ -199,7 +199,7 @@
 			<ul class="nav nav-tabs" role="tablist">
 				<!--[ Résumé de la décision ]-->
 				<li class="nav-item">
-					<a class="nav-link active" href="#[#DECISION_TABS_PREFIX]-0" aria-controls="#[#DECISION_TABS_PREFIX]-0" role="tab" data-toggle="tab"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
+					<a class="nav-link active" href="#[#DECISION_TABS_PREFIX]0" aria-controls="#[#DECISION_TABS_PREFIX]0" role="tab" data-toggle="tab"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
 				</li>
 		</BEFORE>
 		<DO>

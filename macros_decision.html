@@ -42,7 +42,7 @@
  * Header du document.
  */
 <DEFMACRO NAME="DECISION_HEADER">
-	<header class="article__header col-12 col-lg-10">
+	<header class="article__header col-12">
 		<!--[ Titre du document ]-->
 		<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
 
@@ -74,7 +74,7 @@
 <DEFMACRO NAME="DECISION_ARRETS">
 	<LOOP NAME="decision_arrets" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions" ORDER="rank">
 		<BEFORE>
-			<section class="decision__arrets col-12 col-lg-10 px-0">
+			<section class="decision__arrets col-12 px-0">
 				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@ARRETS]" NO_ARROW="TRUE" SECTION_ID="decision-arrets" />
 		</BEFORE>
 		<DO>
@@ -260,7 +260,7 @@
  * Header du texte enfant.
  */
 <DEFMACRO NAME="DECISION_TEXTE_HEADER">
-	<section class="decision__texte-header col-12 col-lg-10">
+	<section class="decision__texte-header col-12">
 		<!--[ Titre du document ]-->
 		<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
 
@@ -294,7 +294,7 @@
 		ORDER="degree">
 		
 		<BEFORE>
-			<section class="article__persons-infos col-12 col-lg-10">
+			<section class="article__persons-infos col-12">
 				<div class="article__persons-infos-contents">
 		</BEFORE>
 

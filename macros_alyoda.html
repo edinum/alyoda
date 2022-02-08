@@ -39,6 +39,31 @@
 </DEFMACRO>
 
 /**
+ * Affichage des arrets associés à l'entrée.
+ */
+<DEFMACRO NAME="AYODA_ENTREE_LISTE_ARRETS">
+	<LOOP NAME="ayoda_entree_liste_arrets" 
+		TABLE="arrets" 
+		SELECT="id, numero, date"
+		WHERE="identry='[#ID]'" 
+		ORDER="numero">
+		<BEFORE>
+			<section id="entry-type" class="toc toc--entry">
+				<ul class="toc__contents toc__contents--entry toc__contents--entry-class-[#TYPE.CLASS] toc__contents--entry-type-[#TYPE.TYPE]">
+		</BEFORE>
+		<DO>
+			<li class="toc__li toc__li toc__li--class-arrets">
+				<a href="[#ID|makeurlwithid]">[#NUMERO] ([#DATE|humandate])</a>
+			</li>
+		</DO>
+		<AFTER>
+				</ul>
+			</section>
+		</AFTER>
+	</LOOP>
+</DEFMACRO>
+
+/**
  * ALYODA : SURCHARGES DE LA NOVA
  * ==============================
  */
@@ -86,36 +111,12 @@
 </DEFFUNC>
 
 /**
- * Macro principale appelée par le template.
+ * Macro principale ENTREE_MAIN.
+ * EDIT: ajout AYODA_ENTREE_LISTE_ARRETS.
  */
 <DEFMACRO NAME="ENTREE_MAIN">
 	<MACRO NAME="ENTREE_TITLE" />
 	<MACRO NAME="ENTREE_LISTE_TEXTES" />
 	<MACRO NAME="AYODA_ENTREE_LISTE_ARRETS" />
 	<MACRO NAME="ENTREE_RETOUR" />
-</DEFMACRO>
-
-/**
- * Affichage des arrets associés à l'entrée.
- */
-<DEFMACRO NAME="AYODA_ENTREE_LISTE_ARRETS">
-	<LOOP NAME="ayoda_entree_liste_arrets" 
-		TABLE="arrets" 
-		SELECT="id, numero, date"
-		WHERE="identry='[#ID]'" 
-		ORDER="numero">
-		<BEFORE>
-			<section id="entry-type" class="toc toc--entry">
-				<ul class="toc__contents toc__contents--entry toc__contents--entry-class-[#TYPE.CLASS] toc__contents--entry-type-[#TYPE.TYPE]">
-		</BEFORE>
-		<DO>
-			<li class="toc__li toc__li toc__li--class-arrets">
-				<a href="[#ID|makeurlwithid]">[#NUMERO] ([#DATE|humandate])</a>
-			</li>
-		</DO>
-		<AFTER>
-				</ul>
-			</section>
-		</AFTER>
-	</LOOP>
 </DEFMACRO>

@@ -1,6 +1,3 @@
-// No sidenotes
-window.fnLoader.fns.sidenotes = null;
-
 // Toggle text anchors in tabs
 window.fnLoader.fns.toggleTabAnchors = function() {
 	var toggleAnchors = function () {

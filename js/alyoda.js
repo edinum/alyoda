@@ -1,62 +1,8 @@
-// Sidenotes for decisions
-window.fnLoader.fns.sidenotes = function () {
-	var setSidenotesPosition = function () {
-		var $sidenotes = $(".decision__textes .tab-pane.active #sidenotes");
+// No sidenotes
+window.fnLoader.fns.sidenotes = null;
 
-		if ($sidenotes.length === 0) return;
-
-		var margin = 10;
-		var minTop = 0;
-		var maxBottom = $sidenotes.offset().top + $sidenotes.innerHeight() - 100;
-
-		// Try until element is displayed
-		if (maxBottom < 0) {
-			window.setTimeout(function() {
-				setSidenotesPosition();
-			}, 100);
-			return;
-		}
-
-		// Lien "notes suivantes"
-		var $more = $sidenotes.find(".notesbaspage--more");
-		$more.hide();
-
-		$sidenotes.children("p:not(.notesbaspage--more)").each(function () {
-			try {
-				$(this).show();
-				var $a = $(this).find("a.FootnoteSymbol");
-				if ($a.length === 0) return;
-				
-				var href = $a.attr("href");
-				var targetId = href.replace("#ftn", "#bodyftn");
-				var $target = $(targetId);
-
-				// Barriere mobile
-				if ($target.length === 0) {
-					$(this).hide();
-					return;
-				}
-
-				var top = $target.offset().top;
-				if (top <= minTop) {
-					top = minTop;
-				}
-				$(this).offset({ top: top });
-				var bottom = top + $(this).height();
-				minTop = bottom + margin;
-				if (bottom > maxBottom) {
-					$(this).add($(this).nextAll()).hide();
-					$more.find("a").attr("href", href);
-					$more.show().offset({ top: top });
-					return false;
-				}
-			} catch (error) {
-				$(this).hide();
-				console.error(error, $(this));
-			}
-		});
-	};
-
+// Toggle text anchors in tabs
+window.fnLoader.fns.toggleTabAnchors = function() {
 	var toggleAnchors = function () {
 		$(".decision__textes .tab-pane").each(function() {
 			var $pane = $(this);
@@ -70,17 +16,9 @@ window.fnLoader.fns.sidenotes = function () {
 		})
 	};
 
-	var updateTabContents = function() {
-		toggleAnchors();
-		setSidenotesPosition();
-	};
-
-	// Run when page is ready + on viwport resize
 	$(function() {
 		const $tabs = $(".decision__textes a[data-toggle='tab']");
-		$tabs.on("shown.bs.tab", updateTabContents);
-		$(window).resize(setSidenotesPosition);
-		$(document).on("zoomLevelChanged", setSidenotesPosition);
-		updateTabContents();
+		$tabs.on("shown.bs.tab", toggleAnchors);
+		toggleAnchors();
 	});
 };

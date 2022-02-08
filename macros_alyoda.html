@@ -120,3 +120,87 @@
 	<MACRO NAME="AYODA_ENTREE_LISTE_ARRETS" />
 	<MACRO NAME="ENTREE_RETOUR" />
 </DEFMACRO>
+
+/**
+ * Affiche le titre d'une publication.
+ * @param {string} [separator] - Caractère séparant le numéro et le titre d'une publication.
+ * @param {boolean} [textebrut] - Afficher sans balises HTML.
+ * @param {boolean} [cliquable] - Afficher avec un lien.
+ * @param {boolean} [ml] - Afficher le titre traduit s'il est disponible.
+ * EDIT: n'afficher que le titre du numéro.
+ */
+<DEFFUNC NAME="BASE_TITRE_PUBLICATION" OPTIONAL="separator, textebrut, cliquable, ml">
+	<IF COND="[#TEXTEBRUT]">
+		<IF COND="[#NUMERO]">
+			[#TITRE|textebrut]
+		<ELSEIF COND="[#TYPE] EQ 'rubriqueannuelle'"/>
+			<LOOP NAME="base_titre_publication_parent_title_brut" SELECT="titre" TABLE="publications" WHERE="id = '[#IDPARENT]'">[#TITRE|textebrut] | </LOOP>
+			[#TITRE|textebrut]
+		<ELSEIF COND="[#ML]"/>
+			<LET VAR="mlt"><FUNC NAME="BASE_ML_TITRE" /></LET>
+			[#MLT|textebrut]
+		<ELSE/>
+			[#TITRE|textebrut]
+		</IF>
+	<ELSE/>
+		<IF COND="[#CLIQUABLE]">
+			<a href="[#ID|makeurlwithid]">
+		</IF>
+		<IF COND="[#NUMERO]">
+			<!--[ Support de la direction du texte ]-->
+			<IF COND="[#TITRE|text_is_rtl]">
+				<LET VAR="dir_titre"><span dir="rtl">[#TITRE]</span></LET>
+			<ELSE />
+				<LET VAR="dir_titre">[#TITRE]</LET>
+			</IF>
+			<span class="publi-title-text">[#DIR_TITRE]</span>
+		<ELSEIF COND="[#TYPE] EQ 'rubriqueannuelle'"/>
+			<span class="publi-title-text"><LOOP NAME="base_titre_publication_parent_title" SELECT="titre" TABLE="publications" WHERE="id = '[#IDPARENT]'">[#TITRE] | </LOOP>[#TITRE]</span>
+		<ELSEIF COND="[#ML]"/>
+			<span class="publi-title-text"><FUNC NAME="BASE_ML_TITRE" /></span>
+		<ELSE/>
+			<span class="publi-title-text">[#TITRE]</span>
+		</IF>
+		<IF COND="[#CLIQUABLE]">
+			</a>
+		</IF>
+	</IF>
+</DEFFUNC>
+
+/**
+ * Affiche une liste de numéros pour le menu.
+ * @param {string} titre_section - Titre de la section du menu.
+ * @param {int} id_collection - ID de la collection parente.
+ * @param {string} [filtre] - Filtre passé dans le WHERE de la requête.
+ * EDIT: n'afficher que le titre du numéro.
+ */
+<DEFFUNC NAME="MENU_ISSUES_ITEMS" REQUIRED="titre_section, id_collection" OPTIONAL="filtre">
+	<IF COND="![%MENU_MAX_ISSUES]">
+		<LET VAR="menu_max_issues" GLOBAL="1">10</LET>
+	</IF>
+
+	<LOOP NAME="menu_issues_items" 
+		TABLE="publications"
+		SELECT="id, numero, titre, altertitre, periode, datepubli, datepublipapier"
+		WHERE="idparent = '[#ID_COLLECTION]' [#FILTRE]"
+		ORDER="rank DESC"
+		LIMIT="[%MENU_MAX_ISSUES]">
+		<BEFORE>
+			<section class="main-menu__section main-menu__section--issues">
+				<h2 class="main-menu__section-title">[#TITRE_SECTION]</h2>
+				<ul class="main-menu__list">
+		</BEFORE>
+		<DO>
+			<li class="main-menu__item main-menu__item--issue">
+				<a href="[#ID|makeurlwithid]">
+					<LET VAR="ml_titre"><FUNC NAME="BASE_ML_TITRE" /></LET>
+					<IF COND="[#ML_TITRE] NE [#NUMERO]"><div class="publi-title">[#ML_TITRE]</div></IF>
+				</a>
+			</li>
+		</DO>
+		<AFTER>
+				</ul>
+			</section>
+		</AFTER>
+	</LOOP>
+</DEFFUNC>

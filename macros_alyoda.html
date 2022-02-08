@@ -39,31 +39,6 @@
 </DEFMACRO>
 
 /**
- * Affichage des arrets associés à l'entrée.
- */
-<DEFMACRO NAME="AYODA_ENTREE_LISTE_ARRETS">
-	<LOOP NAME="ayoda_entree_liste_arrets" 
-		TABLE="arrets" 
-		SELECT="id, numero, date"
-		WHERE="identry='[#ID]'" 
-		ORDER="numero">
-		<BEFORE>
-			<section id="entry-type" class="toc toc--entry">
-				<ul class="toc__contents toc__contents--entry toc__contents--entry-class-[#TYPE.CLASS] toc__contents--entry-type-[#TYPE.TYPE]">
-		</BEFORE>
-		<DO>
-			<li class="toc__li toc__li toc__li--class-arrets">
-				<a href="[#ID|makeurlwithid]">[#NUMERO] ([#DATE|humandate])</a>
-			</li>
-		</DO>
-		<AFTER>
-				</ul>
-			</section>
-		</AFTER>
-	</LOOP>
-</DEFMACRO>
-
-/**
  * ALYODA : SURCHARGES DE LA NOVA
  * ==============================
  */
@@ -109,17 +84,6 @@
 		</IF>
 	</a>
 </DEFFUNC>
-
-/**
- * Macro principale ENTREE_MAIN.
- * EDIT: ajout AYODA_ENTREE_LISTE_ARRETS.
- */
-<DEFMACRO NAME="ENTREE_MAIN">
-	<MACRO NAME="ENTREE_TITLE" />
-	<MACRO NAME="ENTREE_LISTE_TEXTES" />
-	<MACRO NAME="AYODA_ENTREE_LISTE_ARRETS" />
-	<MACRO NAME="ENTREE_RETOUR" />
-</DEFMACRO>
 
 /**
  * Affiche le titre d'une publication.
@@ -204,3 +168,52 @@
 		</AFTER>
 	</LOOP>
 </DEFFUNC>
+
+/**
+ * Affichage des textes et arrets associés à l'entrée.
+ * EDIT: compatibilité avec le ME Alyoda.
+ */
+<DEFMACRO NAME="ENTREE_LISTE_TEXTES">
+	<!--[ Remplir un array avec les documents liés ]-->
+	<LET ARRAY="textes_array" GLOBAL="1"></LET>
+	<LOOP NAME="entree_liste_textes_textes" 
+		TABLE="textes" 
+		SELECT="id, idparent"
+		WHERE="identry='[#ID]' AND id [#NOT_IN_TRADUCTIONS]">
+		<SWITCH TEST="[#TYPE]">
+			<DO CASES="editorial, article, actualite, compterendu, notedelecture, informations, chronique, decisiondejustice">
+				<LET ARRAY="textes_array[]" GLOBAL="1">[#ID]</LET>
+			</DO>
+			<DO CASE="default">
+				<LET ARRAY="textes_array[]" GLOBAL="1">[#IDPARENT]</LET>
+			</DO>
+		</SWITCH>
+	</LOOP>
+
+	<LOOP NAME="entree_liste_textes_arrets" 
+		TABLE="arrets" 
+		SELECT="idparent"
+		WHERE="identry='[#ID]'">
+		<LET ARRAY="textes_array[]" GLOBAL="1">[#IDPARENT]</LET>
+	</LOOP>
+
+	<!--[ Afficher la liste sans les doublons ]-->
+	<LOOP NAME="entree_liste_textes_afficher" 
+		TABLE="textes" 
+		WHERE="alias_entities_textes.id IN ([%TEXTES_ARRAY|array_unique|join(',')])" 
+		ORDER="datepubli DESC">
+		<BEFORE>
+			<section id="entry-type" class="toc toc--entry">
+				<ul class="toc__contents toc__contents--entry toc__contents--entry-class-[#TYPE.CLASS] toc__contents--entry-type-[#TYPE.TYPE]">
+		</BEFORE>
+		<DO>
+			<li class="toc__li toc__li toc__li--class-textes">
+				<FUNC NAME="PUBLICATION_LI_TEXTE"/>
+			</li>
+		</DO>
+		<AFTER>
+				</ul>
+			</section>
+		</AFTER>
+	</LOOP>
+</DEFMACRO>

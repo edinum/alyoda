@@ -241,3 +241,58 @@
  */
 <DEFMACRO NAME="PERSONNES_NOMBRE_ENTITES">
 </DEFMACRO>
+
+/**
+ * Liste des entrées d'index de personnes.
+ * EDIT: possibilité de filtrer les personnes par type de document.
+ */
+<DEFMACRO NAME="PERSONNES_INDEX">
+	<LET VAR="type_clause"><IF COND="[#DOCUMENT_TYPE]">AND types.type = '[#DOCUMENT_TYPE]'</IF></LET>
+
+	<LET VAR="table">#_TP_persons</LET>
+	<LET VAR="field">sortkey</LET>
+	<LET VAR="idtype">[#TYPE.ID]</LET>
+	<MACRO NAME="NAV_ALPHABET" />
+
+	<div id="indexes-index" class="index-list index-list--plat index-list--type-[%CURRENT_TYPE]">
+		<LOOP NAME="alphabetSpec">
+			<LET VAR="lettresql">[#LETTRE|replace("'", "\'")]</LET>
+			<LOOP NAME="personnes_index_entries"
+				TABLE="relations, entities, persons, types, persontypes"
+				SELECT="persons.id, g_firstname, g_familyname"
+				WHERE="UPPER(SUBSTRING([#FIELD],1,1)) = '[#LETTRESQL]' AND types.type NOT IN ('informations', 'actualite') AND persontypes.type = '[#TYPE.TYPE]' AND persons.idtype = persontypes.id AND relations.id1 = entities.id AND relations.id2 = persons.id [#TYPE_CLAUSE]"
+				GROUPBY="persons.id"
+				ORDER="[#FIELD]">
+
+				<BEFORE>
+					<section id="alpha[#LETTRE|ord]" class="index-list__section">
+						<div class="row">
+							<div class="index-list__letter-col col-sm-2 col-sm-offset-1">
+								<h2 class="index-list__letter">
+									<a href="#indexes-alphabet">[#LETTRE]</a>
+								</h2>
+							</div>
+							<div class="index-list__contents-col col-sm-8">
+								<ul xml:lang="[#TYPE.LANG]" lang="[#TYPE.LANG]">
+				</BEFORE>
+
+				<DO>
+					<li class="index-list__item index-list__item--plat">
+						<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEINDEXPERSONNES] EQ 'Surname; First name'">
+							<a href="[#ID|makeurlwithid]"><span class="family-name">[#G_FAMILYNAME]</span><IF COND="[#G_FIRSTNAME]">, [#G_FIRSTNAME]</IF></a> <MACRO NAME="PERSONNES_NOMBRE_ENTITES" />
+						<ELSE/>
+							<a href="[#ID|makeurlwithid]">[#G_FIRSTNAME] <span class="family-name">[#G_FAMILYNAME]</span></a> <MACRO NAME="PERSONNES_NOMBRE_ENTITES" />
+						</IF>
+					</li>
+				</DO>
+
+				<AFTER>
+								</ul>
+							</div>
+						</div>
+					</section>
+				</AFTER>
+			</LOOP>
+		</LOOP>
+	</div>
+</DEFMACRO>

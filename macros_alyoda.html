@@ -1,9 +1,30 @@
 <CONTENT VERSION="1.0" LANG="fr" CHARSET="utf-8"/>
 
 /**
- * ALYODA : NOUVELLES MACROS
- * =========================
+ * 1. ALYODA : NOUVELLES MACROS
+ * ============================
  */
+
+ /**
+	* Options maquette Alyoda.
+	*/
+<DEFMACRO NAME="ALYODA_INIT">
+	<!--[ Définition des types et noms des auteurs affichés ]-->
+	<LET ARRAY="auteurs_types"></LET>
+	<LET ARRAY="auteurs_types.conclusiondurapporteur">[@AUTEURS_CONCLUSIONDURAPPORTEUR]</LET>
+	<LET ARRAY="auteurs_types.noteuniversitaire">[@AUTEURS_NOTEUNIVERSITAIRE]</LET>
+	<LET ARRAY="auteurs_types.notedavocat">[@AUTEURS_NOTEDAVOCAT]</LET>
+
+	<!--[ Changement du titre et des entrées pour le tpl personnes ]-->
+	<IF COND="[#VIEW.TPL] EQ 'personnes' AND [#DOCUMENT_TYPE]">
+		<LET VAR="auteur_courant">[#AUTEURS_TYPES.#DOCUMENT_TYPE]</LET>
+		<IF COND="[#AUTEUR_COURANT]">			
+			<LET VAR="titre_page" GLOBAL="1">[#AUTEUR_COURANT] &ndash; [#OPTIONS.METADONNEESSITE.TITRESITE]</LET>
+		</IF>
+
+		<LET VAR="auteurs_type_clause">AND types.type = '[#DOCUMENT_TYPE]'</LET>
+	</IF>
+</DEFMACRO>
 
 /**
  * Création de variables avec les index liés à l'arrêt.
@@ -39,8 +60,8 @@
 </DEFMACRO>
 
 /**
- * ALYODA : SURCHARGES DE LA NOVA
- * ==============================
+ * 2. ALYODA : SURCHARGES DE LA NOVA
+ * =================================
  */
 
 /**
@@ -236,6 +257,40 @@
 </DEFMACRO>
 
 /**
+ * Titre h1 de la page (type de personnes).
+ * EDIT: afficher [#AUTEUR_COURANT].
+ */
+<DEFMACRO NAME="PERSONNES_TITLE">
+	<h1 id="indexes-alphabet" class="main-title personnes__title">
+		[@INDEX]&#160;| <span class="personnes__type">
+			<IF COND="[#AUTEUR_COURANT]">
+				[#AUTEUR_COURANT]
+			<ELSEIF COND="[#TYPE.ALTERTITLE:#SITELANG]">
+				[#TYPE.ALTERTITLE:#SITELANG]
+			<ELSE/>
+				[#TYPE.TITLE]
+			</IF>
+		</span>
+	</h1>
+</DEFMACRO>
+
+/**
+ * Raccourcis vers les autres personnes.
+ * EDIT: afficher les auteurs selon leur type de document.
+ */
+<DEFMACRO NAME="PERSONNES_RACCOURCIS">
+	<div id="page-shortcuts" class="page-shortcuts">
+		<ul class="nav nav-pills">
+			<LOOP NAME="foreach" ARRAY="[#AUTEURS_TYPES|array_keys]">
+				<LET VAR="active_class"><IF COND="[#DOCUMENT_TYPE] EQ [#VALUE]">class="active"</IF></LET>
+				<li [#ACTIVE_CLASS]><a href="[#CURRENTURL_FIXED|query_string('document_type', [#VALUE])]">[#AUTEURS_TYPES.#VALUE]</a></li>
+			</LOOP>
+		</ul>
+	</div>
+</DEFMACRO>
+
+
+/**
  * Affiche le nombre d'entités liées à une autre entité (pour les indexes).
  * EDIT: ne pas afficher car faux ici.
  */
@@ -247,12 +302,9 @@
  * EDIT: possibilité de filtrer les personnes par type de document.
  */
 <DEFMACRO NAME="PERSONNES_INDEX">
-	<LET VAR="type_clause"><IF COND="[#DOCUMENT_TYPE]">AND types.type = '[#DOCUMENT_TYPE]'</IF></LET>
-
 	<LET VAR="table">#_TP_persons</LET>
 	<LET VAR="field">sortkey</LET>
 	<LET VAR="idtype">[#TYPE.ID]</LET>
-	<MACRO NAME="NAV_ALPHABET" />
 
 	<div id="indexes-index" class="index-list index-list--plat index-list--type-[%CURRENT_TYPE]">
 		<LOOP NAME="alphabetSpec">
@@ -260,7 +312,7 @@
 			<LOOP NAME="personnes_index_entries"
 				TABLE="relations, entities, persons, types, persontypes"
 				SELECT="persons.id, g_firstname, g_familyname"
-				WHERE="UPPER(SUBSTRING([#FIELD],1,1)) = '[#LETTRESQL]' AND types.type NOT IN ('informations', 'actualite') AND persontypes.type = '[#TYPE.TYPE]' AND persons.idtype = persontypes.id AND relations.id1 = entities.id AND relations.id2 = persons.id [#TYPE_CLAUSE]"
+				WHERE="UPPER(SUBSTRING([#FIELD],1,1)) = '[#LETTRESQL]' AND types.type NOT IN ('informations', 'actualite') AND persontypes.type = '[#TYPE.TYPE]' AND persons.idtype = persontypes.id AND relations.id1 = entities.id AND relations.id2 = persons.id [#AUTEURS_TYPE_CLAUSE]"
 				GROUPBY="persons.id"
 				ORDER="[#FIELD]">
 

@@ -29,14 +29,14 @@
 /**
  * Création de variables avec les index liés à l'arrêt.
  */
-<DEFMACRO NAME="ALYODA_ARRETS_ENTRIES">
+<DEFMACRO NAME="ALYODA_ARRETS_INFOS">
 	<LET ARRAY="arret_entries" GLOBAL="1"></LET>
-	<LOOP NAME="alyoda_arrets_entries" 
+	<LOOP NAME="alyoda_arrets_infos" 
 		TABLE="relations, entries, entrytypes" 
 		SELECT="DISTINCT(idtype), title, altertitle, type AS entrytype" 
 		WHERE="id1 = '[#ID]' AND id2 = entries.id AND entries.idtype = entrytypes.id AND entrytypes.class = 'indexes'">
 		<LET ARRAY="arret_entries.#ENTRYTYPE" GLOBAL="1">
-			<LOOP NAME="alyoda_arrets_entries_item" 
+			<LOOP NAME="alyoda_arrets_infos_item" 
 				TABLE="entries" SELECT="id, g_name" 
 				WHERE="idtype = '[#IDTYPE]' AND iddocument = '[#ID]'" 
 				ORDER="degree">
@@ -46,16 +46,40 @@
 	</LOOP>
 	<LET VAR="juridictions">[%ARRET_ENTRIES.JURIDICTIONS]</LET>
 	<LET VAR="lebon">[%ARRET_ENTRIES.LEBON]</LET>
+	<LET VAR="arret_title"><MACRO NAME="ALYODA_ARRET_TITLE"/></LET>
+</DEFMACRO>
+
+/**
+ * Calcul du titre de l'arrêt. Dépend de ALYODA_ARRETS_INFOS.
+ */
+<DEFMACRO NAME="ALYODA_ARRET_TITLE">
+	<LET ARRAY="arret_title_parts"></LET>
+	<IF COND="[#JURIDICTIONS]">
+		<LET ARRAY="arret_title_parts[]">[#JURIDICTIONS|textebrut|trim]<IF COND="[#CHAMBRE]">, [#CHAMBRE|textebrut]</IF></LET>
+	</IF>
+	<IF COND="[#NUMERO]">
+		<LET ARRAY="arret_title_parts[]">N°&nbsp;[#NUMERO|textebrut]</LET>
+	</IF>
+	<IF COND="[#PARTIE]">
+		<LET ARRAY="arret_title_parts[]">[#PARTIE|textebrut]</LET>
+	</IF>
+	<IF COND="[#DATE]">
+		<LET ARRAY="arret_title_parts[]">[#DATE|humandate]</LET>
+	</IF>
+	<IF COND="[#LEBON]">
+		<LET ARRAY="arret_title_parts[]">[#LEBON|textebrut]</LET>
+	</IF>
+	[#ARRET_TITLE_PARTS|join(' – ')]
 </DEFMACRO>
 
 /**
  * Sous-titre de la décision dans le sommaire des publications.
  */
 <DEFMACRO NAME="ALYODA_SOUSTITRE_DECISION">
-	<LOOP NAME="alyoda_soustitre_decision" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date" ORDER="rank">
+	<LOOP NAME="alyoda_soustitre_decision" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, chambre, partie" ORDER="rank">
 		<!--[ Récupérer les index dans des variables ]-->
-		<MACRO NAME="ALYODA_ARRETS_ENTRIES"/>
-		<p class="toc__subtitle">[#JURIDICTIONS|textebrut] – N°&nbsp;[#NUMERO] – [#DATE|humandate] – [#LEBON|textebrut]</p>
+		<MACRO NAME="ALYODA_ARRETS_INFOS"/>
+		<p class="toc__subtitle">[#ARRET_TITLE]</p>
 	</LOOP>
 </DEFMACRO>
 

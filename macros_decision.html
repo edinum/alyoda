@@ -72,14 +72,14 @@
  * Arrets associés à la décision.
  */
 <DEFMACRO NAME="DECISION_ARRETS">
-	<LOOP NAME="decision_arrets" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions" ORDER="rank">
+	<LOOP NAME="decision_arrets" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions, chambre, partie" ORDER="rank">
 		<BEFORE>
 			<section class="decision__arrets col-12 px-0">
 				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@ARRETS]" NO_ARROW="TRUE" SECTION_ID="decision-arrets" />
 		</BEFORE>
 		<DO>
 			<!--[ Récupérer les index dans des variables ]-->
-			<MACRO NAME="ALYODA_ARRETS_ENTRIES"/>
+			<MACRO NAME="ALYODA_ARRETS_INFOS"/>
 
 			<!--[ Lier vers le fichier PDF, sinon vers le lien ]-->
 			<IF COND="[#FICHIER]">
@@ -89,7 +89,7 @@
 			</IF>
 
 			<div class="decision__arret">
-				<h3 class="arret__title"><a href="[#HREF]" rel="noreferrer">[#JURIDICTIONS|textebrut] – N°&nbsp;[#NUMERO] – [#DATE|humandate]<FUNC NAME="BASE_ICON" ICON="external-link"></a></h3>
+				<h3 class="arret__title"><a href="[#HREF]" rel="noreferrer">[#ARRET_TITLE]<FUNC NAME="BASE_ICON" ICON="external-link"></a></h3>
 				<IF COND="[#MENTIONS]">
 					<div class="arret__mentions">[#MENTIONS]</div>
 				</IF>

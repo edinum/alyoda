@@ -1,9 +1,9 @@
 {
-  "name": "// Nom du site",
+  "name": "Alyoda",
   "source": {
     "url": "git@github.com:edinum/nova.git",
     "tag": "1.6.0"
   },
-  "repository": "// Repo de la personnalisation du site",
+  "repository": "git@github.com:edinum/alyoda.git",
   "version": "1.0.0"
 }

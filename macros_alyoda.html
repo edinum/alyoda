@@ -60,6 +60,37 @@
 </DEFMACRO>
 
 /**
+ * Affichage des entrees d'un index dans une section de la nav.
+ * @param {string} type - Nom du type de l'index.
+ * @param {string} [section_title] - Titre de la section du menu.
+ */
+<DEFFUNC NAME="ALYODA_MENU_INDEX_EXPANDED" REQUIRED="type" OPTIONAL="section_title">
+	<LET VAR="tableindex">#_TP_entries</LET>
+	<LET VAR="tabletypes">#_TP_entrytypes</LET>
+	<LET VAR="filtre">type = '[#TYPE]'</LET>
+
+	<LOOP NAME="alyoda_menu_index_expanded" TABLE="[#TABLEINDEX], [#TABLETYPES]" SELECT="DISTINCT(idtype), title, altertitle" WHERE="[#FILTRE] AND [#TABLEINDEX].idtype = [#TABLETYPES].id AND [#TABLEINDEX].status GT 0" ORDER="[#TABLETYPES].rank">
+		<IF COND="![#SECTION_TITLE]">
+			<LET VAR="section_title"><FUNC NAME="BASE_ML_TITRE" INDEX="TRUE" /></LET>
+		</IF>
+		<LOOP NAME="alyoda_menu_index_expanded_children" SELECT="id, g_name" TABLE="entries" WHERE="type = '[#TYPE]'" ORDER="g_name">
+			<BEFORE>
+				<section class="main-menu__section main-menu__section--index-expanded">
+					<h2 class="main-menu__section-title">[#SECTION_TITLE]</h2>
+					<ul class="main-menu__list">
+			</BEFORE>
+			<DO>
+				<li class="main-menu__item main-menu__item--entry"><a href="[#ID|makeurlwithid]">[#G_NAME]</a></li>
+			</DO>
+			<AFTER>
+					</ul>
+				</section>
+			</AFTER>
+		</LOOP>
+	</LOOP>
+</DEFFUNC>
+
+/**
  * 2. ALYODA : SURCHARGES DE LA NOVA
  * =================================
  */
@@ -354,4 +385,59 @@
 			</LOOP>
 		</LOOP>
 	</div>
+</DEFMACRO>
+
+/**
+ * Menu des index.
+ * EDIT: affichage des index "expanded" pour les rubriques et juridictions + division des auteurs selon les documents associés + afficher uniquement les index type LIKE 'mot%cle%'.
+ */
+<DEFMACRO NAME="MENU_INDEX">
+	<FUNC NAME="ALYODA_MENU_INDEX_EXPANDED" TYPE="theme"/>
+	<FUNC NAME="ALYODA_MENU_INDEX_EXPANDED" TYPE="juridictions"/>
+
+	<section class="main-menu__section main-menu__section--indexes">
+		<h2 class="main-menu__section-title">[@INDEX]</h2>
+		<ul class="main-menu__list">
+			<!--[ Auteurs selon document associé ]-->
+			<LET VAR="tableindex">#_TP_persons</LET>
+			<LET VAR="tabletypes">#_TP_persontypes</LET>
+			<LET VAR="filtre">type = 'auteur'</LET>
+
+			<LOOP NAME="alyoda_liste_auteurs_index_auteur" TABLE="[#TABLEINDEX], [#TABLETYPES]" SELECT="DISTINCT(idtype), title, altertitle" WHERE="[#FILTRE] AND [#TABLEINDEX].idtype = [#TABLETYPES].id AND [#TABLEINDEX].status GT 0" ORDER="[#TABLETYPES].rank">
+				<LOOP NAME="foreach" ARRAY="[#AUTEURS_TYPES|array_keys]">
+					<li class="main-menu__item main-menu__item--entry"><a href="[#IDTYPE|makeurlwithid|query_string('document_type', [#VALUE])]">[#AUTEURS_TYPES.#VALUE]</a></li>
+				</LOOP>
+			</LOOP>
+
+			<!--[ Mots-clés ]-->
+			<LET VAR="tableindex">#_TP_entries</LET>
+			<LET VAR="tabletypes">#_TP_entrytypes</LET>
+			<LET VAR="filtre">type LIKE 'mot%cle%' AND lang = '[#SITELANG]'</LET>
+
+			<!--[ Il faut tester l'existence de l'index dans la langue de navigation ]-->
+			<LET VAR="sitelang_keywords">
+				<LOOP NAME="menu_index_list" TABLE="[#TABLEINDEX], [#TABLETYPES]" SELECT="DISTINCT(idtype), title, altertitle" WHERE="[#FILTRE] AND [#TABLEINDEX].idtype = [#TABLETYPES].id AND [#TABLEINDEX].status GT 0" ORDER="[#TABLETYPES].rank">
+					<li class="main-menu__item main-menu__item--entry"><a href="[#IDTYPE|makeurlwithid]"><FUNC NAME="BASE_ML_TITRE" INDEX="TRUE" /></a></li>
+				</LOOP>
+			</LET>
+
+			<IF COND="[#SITELANG_KEYWORDS]">
+				[#SITELANG_KEYWORDS|trim]
+			<ELSE />
+				<!--[ Affichage de l'index dans la langue principale du site ]-->
+				<LET VAR="filtre">type LIKE 'mot%cle%' AND lang = '[#MAINLANG]'</LET>
+				<LOOP NAME="menu_index_list"></LOOP>
+			</IF>
+
+			<!--[ Index par annees ]-->
+			<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEINDEXANNUEL]">
+				<li class="main-menu__item main-menu__item--entry"><a href="[#SITEINFOS.URL]/?page=years">[@INDEX_PAR_ANNEES]</a></li>
+			</IF>
+
+			<!--[ Index par langues ]-->
+			<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEINDEXPARLANGUE]">
+				<li class="main-menu__item  main-menu__item--entry"><a href="[#SITEINFOS.URL]/?page=lang">[@INDEX_PAR_LANGUES]</a></li>
+			</IF>
+		</ul>
+	</section>
 </DEFMACRO>

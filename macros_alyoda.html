@@ -18,7 +18,7 @@
 	<!--[ Changement du titre et des entrées pour le tpl personnes ]-->
 	<IF COND="[#VIEW.TPL] EQ 'personnes' AND [#DOCUMENT_TYPE]">
 		<LET VAR="auteur_courant">[#AUTEURS_TYPES.#DOCUMENT_TYPE]</LET>
-		<IF COND="[#AUTEUR_COURANT]">			
+		<IF COND="[#AUTEUR_COURANT]">
 			<LET VAR="titre_page" GLOBAL="1">[#AUTEUR_COURANT] &ndash; [#OPTIONS.METADONNEESSITE.TITRESITE]</LET>
 		</IF>
 

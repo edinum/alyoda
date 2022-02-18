@@ -143,6 +143,14 @@
 </DEFFUNC>
 
 /**
+ * Normalisation des titres des numéros.
+ * @param {string} titre - Titre.
+ */
+<DEFFUNC NAME="ALYODA_TITRE_NUMERO" REQUIRED="titre">
+	[#TITRE|reg_replace('/(\d{4})[ |-]+(\d)/', '$1 | $2')]
+</DEFFUNC>
+
+/**
  * 2. ALYODA : SURCHARGES DE LA NOVA
  * =================================
  */
@@ -195,12 +203,12 @@
  * @param {boolean} [textebrut] - Afficher sans balises HTML.
  * @param {boolean} [cliquable] - Afficher avec un lien.
  * @param {boolean} [ml] - Afficher le titre traduit s'il est disponible.
- * EDIT: n'afficher que le titre du numéro.
+ * EDIT: n'afficher que le titre du numéro + normalisation des titres.
  */
 <DEFFUNC NAME="BASE_TITRE_PUBLICATION" OPTIONAL="separator, textebrut, cliquable, ml">
 	<IF COND="[#TEXTEBRUT]">
-		<IF COND="[#NUMERO]">
-			[#TITRE|textebrut]
+		<IF COND="[#TYPE] EQ 'numero'">
+			<FUNC NAME="ALYODA_TITRE_NUMERO" TITRE="[#TITRE|textebrut]"/>
 		<ELSEIF COND="[#TYPE] EQ 'rubriqueannuelle'"/>
 			<LOOP NAME="base_titre_publication_parent_title_brut" SELECT="titre" TABLE="publications" WHERE="id = '[#IDPARENT]'">[#TITRE|textebrut] | </LOOP>
 			[#TITRE|textebrut]
@@ -214,14 +222,14 @@
 		<IF COND="[#CLIQUABLE]">
 			<a href="[#ID|makeurlwithid]">
 		</IF>
-		<IF COND="[#NUMERO]">
+		<IF COND="[#TYPE] EQ 'numero'">
 			<!--[ Support de la direction du texte ]-->
 			<IF COND="[#TITRE|text_is_rtl]">
 				<LET VAR="dir_titre"><span dir="rtl">[#TITRE]</span></LET>
 			<ELSE />
 				<LET VAR="dir_titre">[#TITRE]</LET>
 			</IF>
-			<span class="publi-title-text">[#DIR_TITRE]</span>
+			<span class="publi-title-text"><FUNC NAME="ALYODA_TITRE_NUMERO" TITRE="[#DIR_TITRE]"/></span>
 		<ELSEIF COND="[#TYPE] EQ 'rubriqueannuelle'"/>
 			<span class="publi-title-text"><LOOP NAME="base_titre_publication_parent_title" SELECT="titre" TABLE="publications" WHERE="id = '[#IDPARENT]'">[#TITRE] | </LOOP>[#TITRE]</span>
 		<ELSEIF COND="[#ML]"/>
@@ -240,7 +248,7 @@
  * @param {string} titre_section - Titre de la section du menu.
  * @param {int} id_collection - ID de la collection parente.
  * @param {string} [filtre] - Filtre passé dans le WHERE de la requête.
- * EDIT: n'afficher que le titre du numéro.
+ * EDIT: n'afficher que le titre du numéro + normalisation des titres.
  */
 <DEFFUNC NAME="MENU_ISSUES_ITEMS" REQUIRED="titre_section, id_collection" OPTIONAL="filtre">
 	<IF COND="![%MENU_MAX_ISSUES]">
@@ -262,7 +270,7 @@
 			<li class="main-menu__item main-menu__item--issue">
 				<a href="[#ID|makeurlwithid]">
 					<LET VAR="ml_titre"><FUNC NAME="BASE_ML_TITRE" /></LET>
-					<IF COND="[#ML_TITRE] NE [#NUMERO]"><div class="publi-title">[#ML_TITRE]</div></IF>
+					<IF COND="[#ML_TITRE] NE [#NUMERO]"><div class="publi-title"><FUNC NAME="ALYODA_TITRE_NUMERO" TITRE="[#ML_TITRE]"/></div></IF>
 				</a>
 			</li>
 		</DO>

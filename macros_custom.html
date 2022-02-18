@@ -304,7 +304,7 @@
 			<li class="main-menu__item main-menu__item--issue">
 				<a href="[#ID|makeurlwithid]">
 					<LET VAR="ml_titre"><FUNC NAME="BASE_ML_TITRE" /></LET>
-					<IF COND="[#ML_TITRE] NE [#NUMERO]"><div class="publi-title"><FUNC NAME="ALYODA_TITRE_NUMERO" TITRE="[#ML_TITRE]"/></div></IF>
+					<IF COND="[#ML_TITRE] NE [#NUMERO]"><span class="publi-title"><FUNC NAME="ALYODA_TITRE_NUMERO" TITRE="[#ML_TITRE]"/></span></IF>
 				</a>
 			</li>
 		</DO>

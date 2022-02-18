@@ -198,6 +198,40 @@
 </DEFFUNC>
 
 /**
+ * Affiche le fil d'ariane.
+ * @param {integer} [use_id] - Identifiant à utiliser.
+ * EDIT: n'afficher que le titre du numéro + normalisation des titres.
+ */
+<DEFFUNC NAME="NAV_ARIANE" OPTIONAL="use_id">
+	<IF COND="![#USE_ID]">
+		<LET VAR="use_id">[#ID]</LET>
+	</IF>
+	<LOOP NAME="nav_ariane" TABLE="relations, entities, publications" WHERE="id2 = '[#USE_ID]' AND nature = 'P' AND id1 = entities.id AND entities.id=publications.identity" ORDER="degree DESC">
+		<BEFORE>
+			<nav class="ariane" aria-label="breadcrumb">
+				<ol class="ariane__list breadcrumb">
+		</BEFORE>
+		<DO>
+			<li class="ariane__item breadcrumb-item">
+				<a class="ariane__link" href="[#ID|makeurlwithid]">
+					<IF COND="[#TYPE] EQ 'numero'">
+						<FUNC NAME="ALYODA_TITRE_NUMERO" TITRE="[#G_TITLE]"/>
+					<ELSEIF COND="[#ALTERTITRE:#SITELANG]">
+						[#ALTERTITRE:#SITELANG|couper(50)]<IF COND="[#ALTERTITRE|hasbeencut]"><span class="ariane__cut">…</span></IF>
+					<ELSE />
+						[#G_TITLE|couper(50)]<IF COND="[#G_TITLE|hasbeencut]"><span class="ariane__cut">…</span></IF>
+					</IF>
+				</a>
+			</li>
+		</DO>
+		<AFTER>
+				</ol>
+			</nav>
+		</AFTER>
+	</LOOP>
+</DEFFUNC>
+
+/**
  * Affiche le titre d'une publication.
  * @param {string} [separator] - Caractère séparant le numéro et le titre d'une publication.
  * @param {boolean} [textebrut] - Afficher sans balises HTML.

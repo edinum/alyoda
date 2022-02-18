@@ -122,15 +122,21 @@
 }
 
 .nav-tabs {
-  border-bottom: 1px solid @color-6;
+  .font-size(1.6);
+  border-bottom: 1px solid @color-5;
 }
 
 .nav-tabs .nav-item {
   margin-bottom: -1px;
 }
 
-.nav-tabs .nav-link:not(.active):focus, .nav-tabs .nav-link:not(.active):hover {
-  border-bottom-color: @color-6;
+.nav-tabs .nav-link {
+  border-color: @color-5 @color-5 transparent !important;
+  border-bottom-color: transparent !important;
+}
+
+.nav-tabs .nav-item + .nav-item .nav-link {
+  border-left: 0;
 }
 
 .nav-link.active {

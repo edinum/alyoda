@@ -192,7 +192,7 @@
 
 		<!--[ Affichage d'un extrait du texte ]-->
 		<IF COND="[#TYPE] EQ 'decisiondejustice'">
-			<p class="toc__extrait">[#TEXTE|removenotes|textebrut|cuttext(220, true)]</p>
+			<div class="toc__extrait">[#TEXTE|removenotes|strip_tags('<p><span><br><em><strong><sup><i><b>')|reg_replace('/<([a-z][a-z0-9]*)[^>]*?(\/?)>/si', '<$1$2>')|cuttext(450, true)]</div>
 		</IF>
 	</a>
 </DEFFUNC>

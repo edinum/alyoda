@@ -12,8 +12,7 @@
  * Cette macro est appelée en dernier lors de l'initialisation des page. Elle permet donc d'écraser n'importe quelle variable.
  */
 <DEFMACRO NAME="CUSTOM_INIT">
-	<!--[ Inclusion des surcharges pour les decisions. Ne pas supprimer. ]-->
- <USE MACROFILE="macros_alyoda.html" />
+	<!--[ Initialisation des surcharges pour les decisions. Ne pas supprimer. ]-->
  <MACRO NAME="ALYODA_INIT"/>
 
 	<!--[ Option : chemin vers le logo du site. Quand cette variable n'est pas définie le titre du site s'affiche à la place du logo ]-->
@@ -27,4 +26,470 @@
 
 	<!--[ Mode développement : passer cette variable un 1 pour exécuter LESS directement dans le navigateur pendant l'intégration. ATTENTION, NE PAS UTILISER EN PRODUCTION ! ]-->
 	<LET VAR="dev_mode" GLOBAL="1">1</LET>
+</DEFMACRO>
+
+/**
+ * 1. ALYODA : NOUVELLES MACROS
+ * ============================
+ */
+
+ /**
+	* Options maquette Alyoda.
+	*/
+<DEFMACRO NAME="ALYODA_INIT">
+	<!--[ Définition des types et noms des auteurs affichés ]-->
+	<LET ARRAY="auteurs_types"></LET>
+	<LET ARRAY="auteurs_types.conclusiondurapporteur">[@AUTEURS_CONCLUSIONDURAPPORTEUR]</LET>
+	<LET ARRAY="auteurs_types.noteuniversitaire">[@AUTEURS_NOTEUNIVERSITAIRE]</LET>
+	<LET ARRAY="auteurs_types.notedavocat">[@AUTEURS_NOTEDAVOCAT]</LET>
+
+	<!--[ Changement du titre et des entrées pour le tpl personnes ]-->
+	<IF COND="[#VIEW.TPL] EQ 'personnes' AND [#DOCUMENT_TYPE]">
+		<LET VAR="auteur_courant">[#AUTEURS_TYPES.#DOCUMENT_TYPE]</LET>
+		<IF COND="[#AUTEUR_COURANT]">
+			<LET VAR="titre_page" GLOBAL="1">[#AUTEUR_COURANT] &ndash; [#OPTIONS.METADONNEESSITE.TITRESITE]</LET>
+		</IF>
+
+		<LET VAR="auteurs_type_clause">AND types.type = '[#DOCUMENT_TYPE]'</LET>
+	</IF>
+</DEFMACRO>
+
+/**
+ * Création de variables avec les index liés à l'arrêt.
+ */
+<DEFMACRO NAME="ALYODA_ARRETS_INFOS">
+	<LET ARRAY="arret_entries" GLOBAL="1"></LET>
+	<LOOP NAME="alyoda_arrets_infos" 
+		TABLE="relations, entries, entrytypes" 
+		SELECT="DISTINCT(idtype), title, altertitle, type AS entrytype" 
+		WHERE="id1 = '[#ID]' AND id2 = entries.id AND entries.idtype = entrytypes.id AND entrytypes.class = 'indexes'">
+		<LET ARRAY="arret_entries.#ENTRYTYPE" GLOBAL="1">
+			<LOOP NAME="alyoda_arrets_infos_item" 
+				TABLE="entries" SELECT="id, g_name" 
+				WHERE="idtype = '[#IDTYPE]' AND iddocument = '[#ID]'" 
+				ORDER="degree">
+				<IF COND="[#COUNT] GT 1">, </IF><a href="[#ID|makeurlwithid]">[#G_NAME]</a>
+			</LOOP>
+		</LET>
+	</LOOP>
+	<LET VAR="juridictions">[%ARRET_ENTRIES.JURIDICTIONS]</LET>
+	<LET VAR="lebon">[%ARRET_ENTRIES.LEBON]</LET>
+	<LET VAR="arret_title"><MACRO NAME="ALYODA_ARRET_TITLE"/></LET>
+</DEFMACRO>
+
+/**
+ * Calcul du titre de l'arrêt. Dépend de ALYODA_ARRETS_INFOS.
+ */
+<DEFMACRO NAME="ALYODA_ARRET_TITLE">
+	<LET ARRAY="arret_title_parts"></LET>
+	<IF COND="[#JURIDICTIONS]">
+		<LET ARRAY="arret_title_parts[]">[#JURIDICTIONS|textebrut|trim]<IF COND="[#CHAMBRE]">, [#CHAMBRE|textebrut]</IF></LET>
+	</IF>
+	<IF COND="[#NUMERO]">
+		<LET ARRAY="arret_title_parts[]">N°&nbsp;[#NUMERO|textebrut]</LET>
+	</IF>
+	<IF COND="[#PARTIE]">
+		<LET ARRAY="arret_title_parts[]">[#PARTIE|textebrut]</LET>
+	</IF>
+	<IF COND="[#DATE]">
+		<LET ARRAY="arret_title_parts[]">[#DATE|humandate]</LET>
+	</IF>
+	<IF COND="[#LEBON]">
+		<LET ARRAY="arret_title_parts[]">[#LEBON|textebrut]</LET>
+	</IF>
+	[#ARRET_TITLE_PARTS|join(' – ')]
+</DEFMACRO>
+
+/**
+ * Sous-titre de la décision dans le sommaire des publications.
+ */
+<DEFMACRO NAME="ALYODA_SOUSTITRE_DECISION">
+	<LOOP NAME="alyoda_soustitre_decision" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, chambre, partie" ORDER="rank">
+		<!--[ Récupérer les index dans des variables ]-->
+		<MACRO NAME="ALYODA_ARRETS_INFOS"/>
+		<p class="toc__subtitle">[#ARRET_TITLE]</p>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Affichage des entrees d'un index dans une section de la nav.
+ * @param {string} type - Nom du type de l'index.
+ * @param {string} [section_title] - Titre de la section du menu.
+ */
+<DEFFUNC NAME="ALYODA_MENU_INDEX_EXPANDED" REQUIRED="type" OPTIONAL="section_title">
+	<LET VAR="tableindex">#_TP_entries</LET>
+	<LET VAR="tabletypes">#_TP_entrytypes</LET>
+	<LET VAR="filtre">type = '[#TYPE]'</LET>
+
+	<LOOP NAME="alyoda_menu_index_expanded" TABLE="[#TABLEINDEX], [#TABLETYPES]" SELECT="DISTINCT(idtype), title, altertitle" WHERE="[#FILTRE] AND [#TABLEINDEX].idtype = [#TABLETYPES].id AND [#TABLEINDEX].status GT 0" ORDER="[#TABLETYPES].rank">
+		<IF COND="![#SECTION_TITLE]">
+			<LET VAR="section_title"><FUNC NAME="BASE_ML_TITRE" INDEX="TRUE" /></LET>
+		</IF>
+		<LOOP NAME="alyoda_menu_index_expanded_children" SELECT="id, g_name" TABLE="entries" WHERE="type = '[#TYPE]'" ORDER="g_name">
+			<BEFORE>
+				<section class="main-menu__section main-menu__section--index-expanded">
+					<h2 class="main-menu__section-title">[#SECTION_TITLE]</h2>
+					<ul class="main-menu__list">
+			</BEFORE>
+			<DO>
+				<li class="main-menu__item main-menu__item--entry"><a href="[#ID|makeurlwithid]">[#G_NAME]</a></li>
+			</DO>
+			<AFTER>
+					</ul>
+				</section>
+			</AFTER>
+		</LOOP>
+	</LOOP>
+</DEFFUNC>
+
+/**
+ * 2. ALYODA : SURCHARGES DE LA NOVA
+ * =================================
+ */
+
+/**
+ * Affiche le titre, le sous-titre d'un document avec la mention "texte intégral", et le numéro du doc.
+ * EDIT: Prise en compte des document de la classe decisions + option affichage d'un extrait du texte.
+ * @param {boolean} [afficher_soustitre] - Affichage du sous-titre.
+ * @param {boolean} [afficher_titres_traduits] - Affichage des titres traduits.
+ * @param {boolean} [afficher_datepubli] - Affichage de la date de publication.
+ */
+<DEFFUNC NAME="PUBLICATION_LI_DOCUMENT" OPTIONAL="afficher_soustitre, afficher_titres_traduits, afficher_datepubli">
+	<a class="toc__link" href="[#ID|makeurlwithid]">
+		<!--[ Titre ]-->
+		<p class="toc__title">[#TITRE|removenotes]</p>
+		
+		<!--[ Sous-titre ]-->
+		<IF COND="[#AFFICHER_SOUSTITRE]">
+			<IF COND="[#SOUSTITRE]">
+				<p class="toc__subtitle">[#SOUSTITRE|removenotes]</p>
+			<ELSEIF COND="[#TYPE] EQ 'decisiondejustice'">
+				<MACRO NAME="ALYODA_SOUSTITRE_DECISION"/>
+			</IF>
+		</IF>
+		
+		<!--[ Titres traduits]-->
+		<IF COND="[#AFFICHER_TITRES_TRADUITS] AND [#ALTERTITRE] LIKE /<r2r:ml lang=\" ([a-z]+)\"/"> 
+			<div class="toc__altertitle">
+				<LOOP NAME="foreach" ARRAY="[#MATCHES.1]">
+					<p xml:lang="[#VALUE]" lang="[#VALUE]">[#ALTERTITRE:#VALUE|removenotes]</p>
+				</LOOP>
+			</div>
+		</IF>
+
+		<!--[ Date de publication si publié dans une rubrique électronique ]-->
+		<IF COND="[#AFFICHER_DATEPUBLI]">
+			<p class="toc__datepubli">[#DATEPUBLI|humandate]</p>
+		</IF>
+
+		<!--[ Affichage d'un extrait du texte ]-->
+		<IF COND="[#TYPE] EQ 'decisiondejustice'">
+			<p class="toc__extrait">[#TEXTE|removenotes|textebrut|cuttext(220, true)]</p>
+		</IF>
+	</a>
+</DEFFUNC>
+
+/**
+ * Affiche le titre d'une publication.
+ * @param {string} [separator] - Caractère séparant le numéro et le titre d'une publication.
+ * @param {boolean} [textebrut] - Afficher sans balises HTML.
+ * @param {boolean} [cliquable] - Afficher avec un lien.
+ * @param {boolean} [ml] - Afficher le titre traduit s'il est disponible.
+ * EDIT: n'afficher que le titre du numéro.
+ */
+<DEFFUNC NAME="BASE_TITRE_PUBLICATION" OPTIONAL="separator, textebrut, cliquable, ml">
+	<IF COND="[#TEXTEBRUT]">
+		<IF COND="[#NUMERO]">
+			[#TITRE|textebrut]
+		<ELSEIF COND="[#TYPE] EQ 'rubriqueannuelle'"/>
+			<LOOP NAME="base_titre_publication_parent_title_brut" SELECT="titre" TABLE="publications" WHERE="id = '[#IDPARENT]'">[#TITRE|textebrut] | </LOOP>
+			[#TITRE|textebrut]
+		<ELSEIF COND="[#ML]"/>
+			<LET VAR="mlt"><FUNC NAME="BASE_ML_TITRE" /></LET>
+			[#MLT|textebrut]
+		<ELSE/>
+			[#TITRE|textebrut]
+		</IF>
+	<ELSE/>
+		<IF COND="[#CLIQUABLE]">
+			<a href="[#ID|makeurlwithid]">
+		</IF>
+		<IF COND="[#NUMERO]">
+			<!--[ Support de la direction du texte ]-->
+			<IF COND="[#TITRE|text_is_rtl]">
+				<LET VAR="dir_titre"><span dir="rtl">[#TITRE]</span></LET>
+			<ELSE />
+				<LET VAR="dir_titre">[#TITRE]</LET>
+			</IF>
+			<span class="publi-title-text">[#DIR_TITRE]</span>
+		<ELSEIF COND="[#TYPE] EQ 'rubriqueannuelle'"/>
+			<span class="publi-title-text"><LOOP NAME="base_titre_publication_parent_title" SELECT="titre" TABLE="publications" WHERE="id = '[#IDPARENT]'">[#TITRE] | </LOOP>[#TITRE]</span>
+		<ELSEIF COND="[#ML]"/>
+			<span class="publi-title-text"><FUNC NAME="BASE_ML_TITRE" /></span>
+		<ELSE/>
+			<span class="publi-title-text">[#TITRE]</span>
+		</IF>
+		<IF COND="[#CLIQUABLE]">
+			</a>
+		</IF>
+	</IF>
+</DEFFUNC>
+
+/**
+ * Affiche une liste de numéros pour le menu.
+ * @param {string} titre_section - Titre de la section du menu.
+ * @param {int} id_collection - ID de la collection parente.
+ * @param {string} [filtre] - Filtre passé dans le WHERE de la requête.
+ * EDIT: n'afficher que le titre du numéro.
+ */
+<DEFFUNC NAME="MENU_ISSUES_ITEMS" REQUIRED="titre_section, id_collection" OPTIONAL="filtre">
+	<IF COND="![%MENU_MAX_ISSUES]">
+		<LET VAR="menu_max_issues" GLOBAL="1">10</LET>
+	</IF>
+
+	<LOOP NAME="menu_issues_items" 
+		TABLE="publications"
+		SELECT="id, numero, titre, altertitre, periode, datepubli, datepublipapier"
+		WHERE="idparent = '[#ID_COLLECTION]' [#FILTRE]"
+		ORDER="rank DESC"
+		LIMIT="[%MENU_MAX_ISSUES]">
+		<BEFORE>
+			<section class="main-menu__section main-menu__section--issues">
+				<h2 class="main-menu__section-title">[#TITRE_SECTION]</h2>
+				<ul class="main-menu__list">
+		</BEFORE>
+		<DO>
+			<li class="main-menu__item main-menu__item--issue">
+				<a href="[#ID|makeurlwithid]">
+					<LET VAR="ml_titre"><FUNC NAME="BASE_ML_TITRE" /></LET>
+					<IF COND="[#ML_TITRE] NE [#NUMERO]"><div class="publi-title">[#ML_TITRE]</div></IF>
+				</a>
+			</li>
+		</DO>
+		<AFTER>
+				</ul>
+			</section>
+		</AFTER>
+	</LOOP>
+</DEFFUNC>
+
+/**
+ * Affichage des textes et arrets associés à l'entrée.
+ * EDIT: compatibilité avec le ME Alyoda.
+ */
+<DEFMACRO NAME="ENTREE_LISTE_TEXTES">
+	<!--[ Remplir un array avec les documents liés ]-->
+	<LET ARRAY="textes_array" GLOBAL="1"></LET>
+	<LOOP NAME="entree_liste_textes_textes" 
+		TABLE="textes" 
+		SELECT="id, idparent"
+		WHERE="identry='[#ID]' AND id [#NOT_IN_TRADUCTIONS]">
+		<SWITCH TEST="[#TYPE]">
+			<DO CASES="editorial, article, actualite, compterendu, notedelecture, informations, chronique, decisiondejustice">
+				<LET ARRAY="textes_array[]" GLOBAL="1">[#ID]</LET>
+			</DO>
+			<DO CASE="default">
+				<LET ARRAY="textes_array[]" GLOBAL="1">[#IDPARENT]</LET>
+			</DO>
+		</SWITCH>
+	</LOOP>
+
+	<LOOP NAME="entree_liste_textes_arrets" 
+		TABLE="arrets" 
+		SELECT="idparent"
+		WHERE="identry='[#ID]'">
+		<LET ARRAY="textes_array[]" GLOBAL="1">[#IDPARENT]</LET>
+	</LOOP>
+
+	<!--[ Afficher la liste sans les doublons ]-->
+	<LOOP NAME="entree_liste_textes_afficher" 
+		TABLE="textes" 
+		WHERE="alias_entities_textes.id IN ([%TEXTES_ARRAY|array_unique|join(',')])" 
+		ORDER="datepubli DESC">
+		<BEFORE>
+			<section id="entry-type" class="toc toc--entry">
+				<ul class="toc__contents toc__contents--entry toc__contents--entry-class-[#TYPE.CLASS] toc__contents--entry-type-[#TYPE.TYPE]">
+		</BEFORE>
+		<DO>
+			<li class="toc__li toc__li--class-textes">
+				<FUNC NAME="PUBLICATION_LI_TEXTE"/>
+			</li>
+		</DO>
+		<AFTER>
+				</ul>
+			</section>
+		</AFTER>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Afficher une entrée d'index
+ * EDIT: ne pas afficher le nombre qui est faux ici.
+ */
+<DEFMACRO NAME="ENTREES_ENTREE">
+	<LOOP NAME="entrees_entree_count"
+		TABLE="relations, entities"
+		SELECT="count(id) AS n"
+		WHERE="id2 = '[#ID]' AND type NOT IN ('informations', 'actualite') AND id1 = entities.id AND entities.id [#NOT_IN_TRADUCTIONS]">
+		<IF COND="[#N] EQ '0'">
+			[#G_NAME]
+		<ELSE/>
+			<a class="index-list__entree" href="[#ID|makeurlwithid]">[#G_NAME]</a>
+		</IF>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Bouton "Retour à l'index".
+ * EDIT: suppression. Un même auteur peut-être affiché dans plusieurs (faux) index, il est donc impossible de produire un lien de retour unique.
+ */
+<DEFMACRO NAME="ENTREE_RETOUR">
+</DEFMACRO>
+
+/**
+ * Titre h1 de la page (type de personnes).
+ * EDIT: afficher [#AUTEUR_COURANT].
+ */
+<DEFMACRO NAME="PERSONNES_TITLE">
+	<h1 id="indexes-alphabet" class="main-title personnes__title">
+		[@INDEX]&#160;| <span class="personnes__type">
+			<IF COND="[#AUTEUR_COURANT]">
+				[#AUTEUR_COURANT]
+			<ELSEIF COND="[#TYPE.ALTERTITLE:#SITELANG]">
+				[#TYPE.ALTERTITLE:#SITELANG]
+			<ELSE/>
+				[#TYPE.TITLE]
+			</IF>
+		</span>
+	</h1>
+</DEFMACRO>
+
+/**
+ * Raccourcis vers les autres personnes.
+ * EDIT: afficher les auteurs selon leur type de document.
+ */
+<DEFMACRO NAME="PERSONNES_RACCOURCIS">
+	<div id="page-shortcuts" class="page-shortcuts">
+		<ul class="nav nav-pills">
+			<LOOP NAME="foreach" ARRAY="[#AUTEURS_TYPES|array_keys]">
+				<LET VAR="active_class"><IF COND="[#DOCUMENT_TYPE] EQ [#VALUE]">class="active"</IF></LET>
+				<li [#ACTIVE_CLASS]><a href="[#CURRENTURL_FIXED|query_string('document_type', [#VALUE])]">[#AUTEURS_TYPES.#VALUE]</a></li>
+			</LOOP>
+		</ul>
+	</div>
+</DEFMACRO>
+
+
+/**
+ * Affiche le nombre d'entités liées à une autre entité (pour les indexes).
+ * EDIT: ne pas afficher car faux ici.
+ */
+<DEFMACRO NAME="PERSONNES_NOMBRE_ENTITES">
+</DEFMACRO>
+
+/**
+ * Liste des entrées d'index de personnes.
+ * EDIT: possibilité de filtrer les personnes par type de document.
+ */
+<DEFMACRO NAME="PERSONNES_INDEX">
+	<LET VAR="table">#_TP_persons</LET>
+	<LET VAR="field">sortkey</LET>
+	<LET VAR="idtype">[#TYPE.ID]</LET>
+
+	<div id="indexes-index" class="index-list index-list--plat index-list--type-[%CURRENT_TYPE]">
+		<LOOP NAME="alphabetSpec">
+			<LET VAR="lettresql">[#LETTRE|replace("'", "\'")]</LET>
+			<LOOP NAME="personnes_index_entries"
+				TABLE="relations, entities, persons, types, persontypes"
+				SELECT="persons.id, g_firstname, g_familyname"
+				WHERE="UPPER(SUBSTRING([#FIELD],1,1)) = '[#LETTRESQL]' AND types.type NOT IN ('informations', 'actualite') AND persontypes.type = '[#TYPE.TYPE]' AND persons.idtype = persontypes.id AND relations.id1 = entities.id AND relations.id2 = persons.id [#AUTEURS_TYPE_CLAUSE]"
+				GROUPBY="persons.id"
+				ORDER="[#FIELD]">
+
+				<BEFORE>
+					<section id="alpha[#LETTRE|ord]" class="index-list__section">
+						<div class="row">
+							<div class="index-list__letter-col col-sm-2 col-sm-offset-1">
+								<h2 class="index-list__letter">
+									<a href="#indexes-alphabet">[#LETTRE]</a>
+								</h2>
+							</div>
+							<div class="index-list__contents-col col-sm-8">
+								<ul xml:lang="[#TYPE.LANG]" lang="[#TYPE.LANG]">
+				</BEFORE>
+
+				<DO>
+					<li class="index-list__item index-list__item--plat">
+						<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEINDEXPERSONNES] EQ 'Surname; First name'">
+							<a href="[#ID|makeurlwithid]"><span class="family-name">[#G_FAMILYNAME]</span><IF COND="[#G_FIRSTNAME]">, [#G_FIRSTNAME]</IF></a> <MACRO NAME="PERSONNES_NOMBRE_ENTITES" />
+						<ELSE/>
+							<a href="[#ID|makeurlwithid]">[#G_FIRSTNAME] <span class="family-name">[#G_FAMILYNAME]</span></a> <MACRO NAME="PERSONNES_NOMBRE_ENTITES" />
+						</IF>
+					</li>
+				</DO>
+
+				<AFTER>
+								</ul>
+							</div>
+						</div>
+					</section>
+				</AFTER>
+			</LOOP>
+		</LOOP>
+	</div>
+</DEFMACRO>
+
+/**
+ * Menu des index.
+ * EDIT: affichage des index "expanded" pour les rubriques et juridictions + division des auteurs selon les documents associés + afficher uniquement les index type LIKE 'mot%cle%'.
+ */
+<DEFMACRO NAME="MENU_INDEX">
+	<FUNC NAME="ALYODA_MENU_INDEX_EXPANDED" TYPE="theme"/>
+	<FUNC NAME="ALYODA_MENU_INDEX_EXPANDED" TYPE="juridictions"/>
+
+	<section class="main-menu__section main-menu__section--indexes">
+		<h2 class="main-menu__section-title">[@INDEX]</h2>
+		<ul class="main-menu__list">
+			<!--[ Auteurs selon document associé ]-->
+			<LET VAR="tableindex">#_TP_persons</LET>
+			<LET VAR="tabletypes">#_TP_persontypes</LET>
+			<LET VAR="filtre">type = 'auteur'</LET>
+
+			<LOOP NAME="alyoda_liste_auteurs_index_auteur" TABLE="[#TABLEINDEX], [#TABLETYPES]" SELECT="DISTINCT(idtype), title, altertitle" WHERE="[#FILTRE] AND [#TABLEINDEX].idtype = [#TABLETYPES].id AND [#TABLEINDEX].status GT 0" ORDER="[#TABLETYPES].rank">
+				<LOOP NAME="foreach" ARRAY="[#AUTEURS_TYPES|array_keys]">
+					<li class="main-menu__item main-menu__item--entry"><a href="[#IDTYPE|makeurlwithid|query_string('document_type', [#VALUE])]">[#AUTEURS_TYPES.#VALUE]</a></li>
+				</LOOP>
+			</LOOP>
+
+			<!--[ Mots-clés ]-->
+			<LET VAR="tableindex">#_TP_entries</LET>
+			<LET VAR="tabletypes">#_TP_entrytypes</LET>
+			<LET VAR="filtre">type LIKE 'mot%cle%' AND lang = '[#SITELANG]'</LET>
+
+			<!--[ Il faut tester l'existence de l'index dans la langue de navigation ]-->
+			<LET VAR="sitelang_keywords">
+				<LOOP NAME="menu_index_list" TABLE="[#TABLEINDEX], [#TABLETYPES]" SELECT="DISTINCT(idtype), title, altertitle" WHERE="[#FILTRE] AND [#TABLEINDEX].idtype = [#TABLETYPES].id AND [#TABLEINDEX].status GT 0" ORDER="[#TABLETYPES].rank">
+					<li class="main-menu__item main-menu__item--entry"><a href="[#IDTYPE|makeurlwithid]"><FUNC NAME="BASE_ML_TITRE" INDEX="TRUE" /></a></li>
+				</LOOP>
+			</LET>
+
+			<IF COND="[#SITELANG_KEYWORDS]">
+				[#SITELANG_KEYWORDS|trim]
+			<ELSE />
+				<!--[ Affichage de l'index dans la langue principale du site ]-->
+				<LET VAR="filtre">type LIKE 'mot%cle%' AND lang = '[#MAINLANG]'</LET>
+				<LOOP NAME="menu_index_list"></LOOP>
+			</IF>
+
+			<!--[ Index par annees ]-->
+			<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEINDEXANNUEL]">
+				<li class="main-menu__item main-menu__item--entry"><a href="[#SITEINFOS.URL]/?page=years">[@INDEX_PAR_ANNEES]</a></li>
+			</IF>
+
+			<!--[ Index par langues ]-->
+			<IF COND="[#OPTIONS.OPTIONSAFFICHAGE.AFFICHAGEINDEXPARLANGUE]">
+				<li class="main-menu__item  main-menu__item--entry"><a href="[#SITEINFOS.URL]/?page=lang">[@INDEX_PAR_LANGUES]</a></li>
+			</IF>
+		</ul>
+	</section>
 </DEFMACRO>

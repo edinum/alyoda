@@ -91,7 +91,7 @@
 	<IF COND="[#PARTIE]">
 		<LET ARRAY="arret_title_parts[]">[#PARTIE|textebrut]</LET>
 	</IF>
-	<IF COND="[#DATE]">
+	<IF COND="[#DATE|isadate] AND [#DATE] NE '0000-00-00' AND [#DATE] NE NULL">
 		<LET ARRAY="arret_title_parts[]">[#DATE|humandate]</LET>
 	</IF>
 	<IF COND="[#LEBON]">

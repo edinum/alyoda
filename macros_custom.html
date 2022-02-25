@@ -37,6 +37,9 @@
 	* Options maquette Alyoda.
 	*/
 <DEFMACRO NAME="ALYODA_INIT">
+	<!--[ Nombre de textes par page sur les index ]-->
+	<LET VAR="entry_textes_split">10</LET>
+
 	<!--[ Définition des types et noms des auteurs affichés ]-->
 	<LET ARRAY="auteurs_types"></LET>
 	<LET ARRAY="auteurs_types.conclusiondurapporteur">[@AUTEURS_CONCLUSIONDURAPPORTEUR]</LET>
@@ -347,7 +350,8 @@
 	<LOOP NAME="entree_liste_textes_afficher" 
 		TABLE="textes" 
 		WHERE="alias_entities_textes.id IN ([%TEXTES_ARRAY|array_unique|join(',')])" 
-		ORDER="datepubli DESC">
+		ORDER="datepubli DESC"
+		SPLIT="[#ENTRY_TEXTES_SPLIT]">
 		<BEFORE>
 			<section id="entry-type" class="toc toc--entry">
 				<ul class="toc__contents toc__contents--entry toc__contents--entry-class-[#TYPE.CLASS] toc__contents--entry-type-[#TYPE.TYPE]">
@@ -359,6 +363,9 @@
 		</DO>
 		<AFTER>
 				</ul>
+				<IF COND="[#NBRESULTS] GT [#ENTRY_TEXTES_SPLIT]">
+					<MACRO NAME="NAV_PAGE_SCALE" />
+				</IF>
 			</section>
 		</AFTER>
 	</LOOP>

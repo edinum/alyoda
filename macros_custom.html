@@ -12,7 +12,7 @@
  * Cette macro est appelée en dernier lors de l'initialisation des page. Elle permet donc d'écraser n'importe quelle variable.
  */
 <DEFMACRO NAME="CUSTOM_INIT">
-	<!--[ Initialisation des surcharges pour les decisions. Ne pas supprimer. ]-->
+	<!--[ Initialisation des surcharges pour les noticejuridiques. Ne pas supprimer. ]-->
  <MACRO NAME="ALYODA_INIT"/>
 
 	<!--[ Option : chemin vers le logo du site. Quand cette variable n'est pas définie le titre du site s'affiche à la place du logo ]-->
@@ -104,10 +104,10 @@
 </DEFMACRO>
 
 /**
- * Sous-titre de la décision dans le sommaire des publications.
+ * Sous-titre de la noticejuridique dans le sommaire des publications.
  */
-<DEFMACRO NAME="ALYODA_SOUSTITRE_DECISION">
-	<LOOP NAME="alyoda_soustitre_decision" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, chambre, partie" ORDER="rank">
+<DEFMACRO NAME="ALYODA_SOUSTITRE_NOTICEJURIDIQUE">
+	<LOOP NAME="alyoda_soustitre_noticejuridique" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, chambre, partie" ORDER="rank">
 		<!--[ Récupérer les index dans des variables ]-->
 		<MACRO NAME="ALYODA_ARRETS_INFOS"/>
 		<p class="toc__subtitle">[#ARRET_TITLE]</p>
@@ -163,7 +163,7 @@
  * @param {boolean} [afficher_soustitre] - Affichage du sous-titre.
  * @param {boolean} [afficher_titres_traduits] - Affichage des titres traduits.
  * @param {boolean} [afficher_datepubli] - Affichage de la date de publication.
- * EDIT: Prise en compte des document de la classe decisions + option affichage d'un extrait du texte.
+ * EDIT: Prise en compte des noticejuridiques + option affichage d'un extrait du texte.
  */
 <DEFFUNC NAME="PUBLICATION_LI_DOCUMENT" OPTIONAL="afficher_soustitre, afficher_titres_traduits, afficher_datepubli">
 	<a class="toc__link" href="[#ID|makeurlwithid]">
@@ -174,8 +174,8 @@
 		<IF COND="[#AFFICHER_SOUSTITRE]">
 			<IF COND="[#SOUSTITRE]">
 				<p class="toc__subtitle">[#SOUSTITRE|removenotes]</p>
-			<ELSEIF COND="[#TYPE] EQ 'decisiondejustice'">
-				<MACRO NAME="ALYODA_SOUSTITRE_DECISION"/>
+			<ELSEIF COND="[#TYPE] EQ 'noticejuridique'">
+				<MACRO NAME="ALYODA_SOUSTITRE_NOTICEJURIDIQUE"/>
 			</IF>
 		</IF>
 		
@@ -194,7 +194,7 @@
 		</IF>
 
 		<!--[ Affichage d'un extrait du texte ]-->
-		<IF COND="[#TYPE] EQ 'decisiondejustice'">
+		<IF COND="[#TYPE] EQ 'noticejuridique'">
 			<div class="toc__extrait">[#TEXTE|removenotes|strip_tags('<p><span><br><em><strong><sup><i><b>')|reg_replace('/<([a-z][a-z0-9]*)[^>]*?(\/?)>/si', '<$1$2>')|cuttext(450, true)]</div>
 		</IF>
 	</a>
@@ -330,7 +330,7 @@
 		SELECT="id, idparent"
 		WHERE="identry='[#ID]' AND id [#NOT_IN_TRADUCTIONS]">
 		<SWITCH TEST="[#TYPE]">
-			<DO CASES="editorial, article, actualite, compterendu, notedelecture, informations, chronique, decisiondejustice">
+			<DO CASES="editorial, article, actualite, compterendu, notedelecture, informations, chronique, noticejuridique">
 				<LET ARRAY="textes_array[]" GLOBAL="1">[#ID]</LET>
 			</DO>
 			<DO CASE="default">

@@ -1,7 +1,7 @@
 // Toggle text anchors in tabs
 window.fnLoader.fns.toggleTabAnchors = function() {
 	var toggleAnchors = function () {
-		$(".decision__textes .tab-pane").each(function() {
+		$(".noticejuridique__textes .tab-pane").each(function() {
 			var $pane = $(this);
 			var isActive = $pane.is(".active");
 			var sourceAttr = isActive ? "data-id" : "id";
@@ -14,7 +14,7 @@ window.fnLoader.fns.toggleTabAnchors = function() {
 	};
 
 	$(function() {
-		const $tabs = $(".decision__textes a[data-toggle='tab']");
+		const $tabs = $(".noticejuridique__textes a[data-toggle='tab']");
 		$tabs.on("shown.bs.tab", toggleAnchors);
 		toggleAnchors();
 	});

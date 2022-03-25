@@ -3,7 +3,7 @@
 /**
  * Initialisation de la page.
  */
-<DEFMACRO NAME="DECISION_INIT">
+<DEFMACRO NAME="NOTICEJURIDIQUE_INIT">
 	<!--[ Dépendances additionnelles ]-->
 	<USE MACROFILE="macros_article.html" />
 
@@ -11,36 +11,36 @@
 	<MACRO NAME="ARTICLE_INIT"/>
 
 	<!--[ Référence électronique ]-->
-	<LET VAR="reference_electronique" GLOBAL="1" ><MACRO NAME="DECISION_REFERENCE_ELECTRONIQUE" /></LET>
+	<LET VAR="reference_electronique" GLOBAL="1" ><MACRO NAME="NOTICEJURIDIQUE_REFERENCE_ELECTRONIQUE" /></LET>
 
-	<!--[ Calcul des boutons de partage de la décision ]-->
-	<LET VAR="decision_liens_partage"><MACRO NAME="ARTICLE_LIENS_PARTAGE" /></LET>
+	<!--[ Calcul des boutons de partage de la noticejuridique ]-->
+	<LET VAR="noticejuridique_liens_partage"><MACRO NAME="ARTICLE_LIENS_PARTAGE" /></LET>
 </DEFMACRO>
 
 /**
  * Référence électronique (sans [#NUMERODOCUMENT]).
  */
-<DEFMACRO NAME="DECISION_REFERENCE_ELECTRONIQUE">
+<DEFMACRO NAME="NOTICEJURIDIQUE_REFERENCE_ELECTRONIQUE">
 	[%LISTE_AUTEURS]«&nbsp;[#TITRE|removenotes]&nbsp;», <FUNC NAME="BASE_PARU_DANS" CITATION="1" />, [@MIS_EN_LIGNE_LE] [#DATEPUBLI|humandate], [@CONSULTE_LE] <?php echo strftime('%d %B %Y');?>. URL&nbsp;: [#SITEINFOS.URL]/[#ID|makeurlwithid]
 </DEFMACRO>
 
 /**
  * Macro principale appelée par le template.
  */
-<DEFMACRO NAME="DECISION_MAIN">
+<DEFMACRO NAME="NOTICEJURIDIQUE_MAIN">
 	<FUNC NAME="NAV_ENTITIES" />
-	<MACRO NAME="DECISION_HEADER" />
-	<MACRO NAME="DECISION_ARRETS"/>
-	<MACRO NAME="DECISION_MOTSCLES" />
+	<MACRO NAME="NOTICEJURIDIQUE_HEADER" />
+	<MACRO NAME="NOTICEJURIDIQUE_ARRETS"/>
+	<MACRO NAME="NOTICEJURIDIQUE_MOTSCLES" />
 	<MACRO NAME="DECISON_TEXTES"/>
-	<MACRO NAME="DECISION_LICENSE" />
+	<MACRO NAME="NOTICEJURIDIQUE_LICENSE" />
 	<FUNC NAME="NAV_ENTITIES" SHOW_BUTTONS="1" />
 </DEFMACRO>
 
 /**
  * Header du document.
  */
-<DEFMACRO NAME="DECISION_HEADER">
+<DEFMACRO NAME="NOTICEJURIDIQUE_HEADER">
 	<header class="article__header col-12">
 		<!--[ Titre du document ]-->
 		<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
@@ -68,13 +68,13 @@
 </DEFMACRO>
 
 /**
- * Arrets associés à la décision.
+ * Arrets associés à la noticejuridique.
  */
-<DEFMACRO NAME="DECISION_ARRETS">
-	<LOOP NAME="decision_arrets" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions, chambre, partie" ORDER="rank">
+<DEFMACRO NAME="NOTICEJURIDIQUE_ARRETS">
+	<LOOP NAME="noticejuridique_arrets" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions, chambre, partie" ORDER="rank">
 		<BEFORE>
-			<section class="decision__arrets col-12 px-0">
-				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@ARRETS]" NO_ARROW="TRUE" SECTION_ID="decision-arrets" />
+			<section class="noticejuridique__arrets col-12 px-0">
+				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@ARRETS]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-arrets" />
 		</BEFORE>
 		<DO>
 			<!--[ Récupérer les index dans des variables ]-->
@@ -87,7 +87,7 @@
 				<LET VAR="href">[#LIEN]</LET>
 			</IF>
 
-			<div class="decision__arret">
+			<div class="noticejuridique__arret">
 				<h3 class="arret__title"><a href="[#HREF]" rel="noreferrer">[#ARRET_TITLE]<FUNC NAME="BASE_ICON" ICON="external-link"></a></h3>
 				<IF COND="[#MENTIONS]">
 					<div class="arret__mentions">[#MENTIONS]</div>
@@ -98,13 +98,13 @@
 				</a>
 
 				<div id="arret__infos-[#ID]" class="arret__infos collapse">
-					<FUNC NAME="DECISION_ARRET_INFO" TITLE="[@JURIDICTION]" VALUE="[#JURIDICTIONS]"/>
-					<FUNC NAME="DECISION_ARRET_INFO" TITLE="[@NUMERO_DECISION]" VALUE="[#NUMERO]"/>
-					<FUNC NAME="DECISION_ARRET_INFO" TITLE="[@NUMERO_LEGIFRANCE]" VALUE="[#NUMEROLEGIFRANCE]"/>
+					<FUNC NAME="NOTICEJURIDIQUE_ARRET_INFO" TITLE="[@JURIDICTION]" VALUE="[#JURIDICTIONS]"/>
+					<FUNC NAME="NOTICEJURIDIQUE_ARRET_INFO" TITLE="[@NUMERO_NOTICEJURIDIQUE]" VALUE="[#NUMERO]"/>
+					<FUNC NAME="NOTICEJURIDIQUE_ARRET_INFO" TITLE="[@NUMERO_LEGIFRANCE]" VALUE="[#NUMEROLEGIFRANCE]"/>
 					<IF COND="[#DATE|isadate] AND [#DATE] NE '0000-00-00' AND [#DATE] NE NULL">
-						<FUNC NAME="DECISION_ARRET_INFO" TITLE="[@DATE_DECISION]" VALUE="[#DATE|humandate]"/>
+						<FUNC NAME="NOTICEJURIDIQUE_ARRET_INFO" TITLE="[@DATE_NOTICEJURIDIQUE]" VALUE="[#DATE|humandate]"/>
 					</IF>
-					<FUNC NAME="DECISION_ARRET_INFO" TITLE="[@PUBLICATION_LEBON]" VALUE="[#LEBON]"/>
+					<FUNC NAME="NOTICEJURIDIQUE_ARRET_INFO" TITLE="[@PUBLICATION_LEBON]" VALUE="[#LEBON]"/>
 				</div>
 			</div>
 		</DO>
@@ -119,7 +119,7 @@
  * @param {string} title - Nom du champ à afficher.
  * @param {string} value - Valeur du champ.
  */
-<DEFFUNC NAME="DECISION_ARRET_INFO" REQUIRED="title, value">
+<DEFFUNC NAME="NOTICEJURIDIQUE_ARRET_INFO" REQUIRED="title, value">
 	<IF COND="[#VALUE]">
 		<p class="arret__info">[#TITLE]&nbsp;: [#VALUE]</p>
 	</IF>
@@ -128,39 +128,39 @@
 /**
  * Section indexes liés au document.
  */
-<DEFMACRO NAME="DECISION_MOTSCLES">
+<DEFMACRO NAME="NOTICEJURIDIQUE_MOTSCLES">
 	<MACRO NAME="ARTICLE_MOTSCLES" />
 </DEFMACRO>
 
 /**
  * Section droits d'auteur.
  */
-<DEFMACRO NAME="DECISION_LICENSE">
+<DEFMACRO NAME="NOTICEJURIDIQUE_LICENSE">
 	<MACRO NAME="ARTICLE_LICENSE" />
 </DEFMACRO>
 
 /**
- * Textes enfants de la décision.
+ * Textes enfants de la noticejuridique.
  */
 <DEFMACRO NAME="DECISON_TEXTES">
-	<LET VAR="decision_textes_order">type, rank</LET>
-	<LET VAR="decision_tabs_prefix">decision-textes-tab-</LET>
+	<LET VAR="noticejuridique_textes_order">type, rank</LET>
+	<LET VAR="noticejuridique_tabs_prefix">noticejuridique-textes-tab-</LET>
 
-	<LOOP NAME="decision_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#DECISON_TEXTES_ORDER]'">
+	<LOOP NAME="noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#DECISON_TEXTES_ORDER]'">
 		<BEFORE>
-			<section class="decision__textes">
-				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTES]" NO_ARROW="TRUE" SECTION_ID="decision-textes" />
-				<MACRO NAME="DECISIONS_TEXTES_TABS"/>
+			<section class="noticejuridique__textes">
+				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTES]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-textes" />
+				<MACRO NAME="NOTICEJURIDIQUE_TEXTES_TABS"/>
 				<div class="tab-content">
-					<!--[ Résumé de la décision ]-->
-					<div role="tabpanel" id="[#DECISION_TABS_PREFIX]0" class="tab-pane active" lang="[#LANGUE]" xml:lang="[#LANGUE]">
+					<!--[ Résumé de la noticejuridique ]-->
+					<div role="tabpanel" id="[#NOTICEJURIDIQUE_TABS_PREFIX]0" class="tab-pane active" lang="[#LANGUE]" xml:lang="[#LANGUE]">
 						<LET VAR="titre">[@RESUME]</LET>
-						<MACRO NAME="DECISION_TEXTE"/>
+						<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
 					</div>
 		</BEFORE>
 		<DO>
-			<div role="tabpanel" id="[#DECISION_TABS_PREFIX][#COUNT]" class="tab-pane" lang="[#LANGUE]" xml:lang="[#LANGUE]">
-				<MACRO NAME="DECISION_TEXTE"/>
+			<div role="tabpanel" id="[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" class="tab-pane" lang="[#LANGUE]" xml:lang="[#LANGUE]">
+				<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
 			</div>
 		</DO>
 		<AFTER>
@@ -168,29 +168,29 @@
 			</section>
 		</AFTER>
 		<ALTERNATIVE>
-			<!--[ Texte de la décision uniquement ]-->
-			<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTE]" NO_ARROW="TRUE" SECTION_ID="decision-textes" />
-			<LET VAR="titre"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></LET>
-			<MACRO NAME="DECISION_TEXTE"/>
+			<!--[ Texte de la noticejuridique uniquement ]-->
+			<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTE]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-textes" />
+			<LET VAR="titre"><FUNC NAME="NOTICEJURIDIQUE_GET_TYPE_TITLE" TYPE="[#TYPE]"/></LET>
+			<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
 		</ALTERNATIVE>
 	</LOOP>
 </DEFMACRO>
 
 /**
- * Onglets des textes enfants de la décision.
+ * Onglets des textes enfants de la noticejuridique.
  */
-<DEFMACRO NAME="DECISIONS_TEXTES_TABS">
-	<LOOP NAME="decision_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="'[#DECISON_TEXTES_ORDER]'">
+<DEFMACRO NAME="NOTICEJURIDIQUE_TEXTES_TABS">
+	<LOOP NAME="noticejuridique_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="'[#DECISON_TEXTES_ORDER]'">
 		<BEFORE>
 			<ul class="nav nav-tabs" role="tablist">
-				<!--[ Résumé de la décision ]-->
+				<!--[ Résumé de la noticejuridique ]-->
 				<li class="nav-item">
-					<a class="nav-link active" href="#[#DECISION_TABS_PREFIX]0" aria-controls="#[#DECISION_TABS_PREFIX]0" role="tab" data-toggle="tab">[@RESUME]</a>
+					<a class="nav-link active" href="#[#NOTICEJURIDIQUE_TABS_PREFIX]0" aria-controls="#[#NOTICEJURIDIQUE_TABS_PREFIX]0" role="tab" data-toggle="tab">[@RESUME]</a>
 				</li>
 		</BEFORE>
 		<DO>
 			<li class="nav-item">
-				<a class="nav-link" href="#[#DECISION_TABS_PREFIX][#COUNT]" aria-controls="#[#DECISION_TABS_PREFIX][#COUNT]" role="tab" data-toggle="tab"><FUNC NAME="DECISION_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
+				<a class="nav-link" href="#[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" aria-controls="#[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" role="tab" data-toggle="tab"><FUNC NAME="NOTICEJURIDIQUE_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
 			</li>
 		</DO>
 		<AFTER>
@@ -203,8 +203,8 @@
  * Récupérer le titre d'un type dans la langue du site.
  * @param {string} type - Type.
  */
-<DEFFUNC NAME="DECISION_GET_TYPE_TITLE" REQUIRED="type">
-	<LOOP NAME="decision_get_type_title" TABLE="types" SELECT="title, altertitle" WHERE="type='[#TYPE]'" LIMIT="0,1">
+<DEFFUNC NAME="NOTICEJURIDIQUE_GET_TYPE_TITLE" REQUIRED="type">
+	<LOOP NAME="noticejuridique_get_type_title" TABLE="types" SELECT="title, altertitle" WHERE="type='[#TYPE]'" LIMIT="0,1">
 		<IF COND="[#ALTERTITLE:#SITELANG]"/>[#ALTERTITLE:#SITELANG]<ELSE/>[#TITLE]</IF>
 	</LOOP>
 </DEFFUNC>
@@ -212,19 +212,19 @@
 /**
  * Texte enfant.
  */
-<DEFMACRO NAME="DECISION_TEXTE">
+<DEFMACRO NAME="NOTICEJURIDIQUE_TEXTE">
 	<!--[ Boutons de partage ]-->
-	<MACRO NAME="DECISION_BOUTONS" />
+	<MACRO NAME="NOTICEJURIDIQUE_BOUTONS" />
 
 	<!--[ Header (titres) ]-->
-	<MACRO NAME="DECISION_TEXTE_HEADER"/>
+	<MACRO NAME="NOTICEJURIDIQUE_TEXTE_HEADER"/>
 
 	<!--[ Auteurs ]-->
-	<MACRO NAME="DECISION_TEXTE_AUTEURS"/>
+	<MACRO NAME="NOTICEJURIDIQUE_TEXTE_AUTEURS"/>
 
 	<!--[ Texte ]-->
-	<section class="decision__text article__text">
-		<MACRO NAME="DECISION_TEXTE_CONTENTS"/>
+	<section class="noticejuridique__text article__text">
+		<MACRO NAME="NOTICEJURIDIQUE_TEXTE_CONTENTS"/>
 	</section>
 	<MACRO NAME="ARTICLE_BIBLIOGRAPHIE" />
 	<MACRO NAME="ARTICLE_ANNEXE" />
@@ -237,15 +237,15 @@
 /**
  * Boutons du header (facsimilé, print, partage).
  */
-<DEFMACRO NAME="DECISION_BOUTONS">
-	<div class="decision__buttons">
-		<ul class="decision__buttons-list nav nav-pills">
+<DEFMACRO NAME="NOTICEJURIDIQUE_BOUTONS">
+	<div class="noticejuridique__buttons">
+		<ul class="noticejuridique__buttons-list nav nav-pills">
 			<!--[ Bouton fac-similé ]-->
 			<MACRO NAME="ARTICLE_BOUTON_PDF" />
 			<!--[ Bouton de téléchargement de la TEI ]-->
 			<MACRO NAME="ARTICLE_BOUTON_TEI" />
-			<!--[ Boutons de partage (de la décision parente) ]-->
-			[#DECISION_LIENS_PARTAGE]
+			<!--[ Boutons de partage (de la noticejuridique parente) ]-->
+			[#NOTICEJURIDIQUE_LIENS_PARTAGE]
 		</ul>
 	</div>
 </DEFMACRO>
@@ -253,8 +253,8 @@
 /**
  * Header du texte enfant.
  */
-<DEFMACRO NAME="DECISION_TEXTE_HEADER">
-	<section class="decision__texte-header col-12">
+<DEFMACRO NAME="NOTICEJURIDIQUE_TEXTE_HEADER">
+	<section class="noticejuridique__texte-header col-12">
 		<!--[ Titre du document ]-->
 		<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
 
@@ -278,10 +278,10 @@
 /**
  * Auteurs du texte enfant.
  */
-<DEFMACRO NAME="DECISION_TEXTE_AUTEURS">
+<DEFMACRO NAME="NOTICEJURIDIQUE_TEXTE_AUTEURS">
 	<LET VAR="idtexte">[#ID]</LET>
 
-	<LOOP NAME="decision_texte_auteurs" 
+	<LOOP NAME="noticejuridique_texte_auteurs" 
 		SELECT="persons.id" 
 		TABLE="relations, persons" 
 		WHERE="id1 = '[#ID]' AND id2 = persons.id AND nature = 'G' AND type = 'auteur'"
@@ -293,7 +293,7 @@
 		</BEFORE>
 
 		<DO>
-			<LOOP NAME="decision_texte_auteurs_auteur" 
+			<LOOP NAME="noticejuridique_texte_auteurs_auteur" 
 				SELECT="idperson, nomfamille, prenom, description, courriel" 
 				TABLE="auteurs" 
 				WHERE="id = '[#ID]' AND iddocument='[#IDTEXTE]'">
@@ -327,7 +327,7 @@
 /**
  * Afficher le texte (sans le filtre tocable).
  */
-<DEFMACRO NAME="DECISION_TEXTE_CONTENTS">
+<DEFMACRO NAME="NOTICEJURIDIQUE_TEXTE_CONTENTS">
 	<div class="article__text-contents">
 		<!--[ Image d'accroche ]-->
 		<MACRO NAME="ARTICLE_IMAGEACCROCHE" />

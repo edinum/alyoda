@@ -76,7 +76,7 @@
 		</LET>
 	</LOOP>
 	<LET VAR="juridictions">[%DECISION_ENTRIES.JURIDICTIONS]</LET>
-	<LET VAR="lebon">[%DECISION_ENTRIES.LEBON]</LET>
+	<LET VAR="codepublication">[%DECISION_ENTRIES.CODEPUBLICATION]</LET>
 	<LET VAR="decision_title"><MACRO NAME="ALYODA_DECISION_TITLE"/></LET>
 </DEFMACRO>
 
@@ -97,8 +97,8 @@
 	<IF COND="[#DATE|isadate] AND [#DATE] NE '0000-00-00' AND [#DATE] NE NULL">
 		<LET ARRAY="decision_title_parts[]">[#DATE|humandate]</LET>
 	</IF>
-	<IF COND="[#LEBON]">
-		<LET ARRAY="decision_title_parts[]">[#LEBON|textebrut]</LET>
+	<IF COND="[#CODEPUBLICATION]">
+		<LET ARRAY="decision_title_parts[]">[#CODEPUBLICATION|textebrut]</LET>
 	</IF>
 	[#DECISION_TITLE_PARTS|join(' – ')]
 </DEFMACRO>

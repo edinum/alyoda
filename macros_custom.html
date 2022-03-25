@@ -58,16 +58,16 @@
 </DEFMACRO>
 
 /**
- * Création de variables avec les index liés à l'arrêt.
+ * Création de variables avec les index liés à la décision.
  */
-<DEFMACRO NAME="ALYODA_ARRETS_INFOS">
-	<LET ARRAY="arret_entries" GLOBAL="1"></LET>
-	<LOOP NAME="alyoda_arrets_infos" 
+<DEFMACRO NAME="ALYODA_DECISIONS_INFOS">
+	<LET ARRAY="decision_entries" GLOBAL="1"></LET>
+	<LOOP NAME="alyoda_decisions_infos" 
 		TABLE="relations, entries, entrytypes" 
 		SELECT="DISTINCT(idtype), title, altertitle, type AS entrytype" 
 		WHERE="id1 = '[#ID]' AND id2 = entries.id AND entries.idtype = entrytypes.id AND entrytypes.class = 'indexes'">
-		<LET ARRAY="arret_entries.#ENTRYTYPE" GLOBAL="1">
-			<LOOP NAME="alyoda_arrets_infos_item" 
+		<LET ARRAY="decision_entries.#ENTRYTYPE" GLOBAL="1">
+			<LOOP NAME="alyoda_decisions_infos_item" 
 				TABLE="entries" SELECT="id, g_name" 
 				WHERE="idtype = '[#IDTYPE]' AND iddocument = '[#ID]'" 
 				ORDER="degree">
@@ -75,42 +75,42 @@
 			</LOOP>
 		</LET>
 	</LOOP>
-	<LET VAR="juridictions">[%ARRET_ENTRIES.JURIDICTIONS]</LET>
-	<LET VAR="lebon">[%ARRET_ENTRIES.LEBON]</LET>
-	<LET VAR="arret_title"><MACRO NAME="ALYODA_ARRET_TITLE"/></LET>
+	<LET VAR="juridictions">[%DECISION_ENTRIES.JURIDICTIONS]</LET>
+	<LET VAR="lebon">[%DECISION_ENTRIES.LEBON]</LET>
+	<LET VAR="decision_title"><MACRO NAME="ALYODA_DECISION_TITLE"/></LET>
 </DEFMACRO>
 
 /**
- * Calcul du titre de l'arrêt. Dépend de ALYODA_ARRETS_INFOS.
+ * Calcul du titre de la décision. Dépend de ALYODA_DECISIONS_INFOS.
  */
-<DEFMACRO NAME="ALYODA_ARRET_TITLE">
-	<LET ARRAY="arret_title_parts"></LET>
+<DEFMACRO NAME="ALYODA_DECISION_TITLE">
+	<LET ARRAY="decision_title_parts"></LET>
 	<IF COND="[#JURIDICTIONS]">
-		<LET ARRAY="arret_title_parts[]">[#JURIDICTIONS|textebrut|trim]<IF COND="[#CHAMBRE]">, [#CHAMBRE|textebrut]</IF></LET>
+		<LET ARRAY="decision_title_parts[]">[#JURIDICTIONS|textebrut|trim]<IF COND="[#CHAMBRE]">, [#CHAMBRE|textebrut]</IF></LET>
 	</IF>
 	<IF COND="[#NUMERO]">
-		<LET ARRAY="arret_title_parts[]">N°&nbsp;[#NUMERO|textebrut]</LET>
+		<LET ARRAY="decision_title_parts[]">N°&nbsp;[#NUMERO|textebrut]</LET>
 	</IF>
 	<IF COND="[#PARTIE]">
-		<LET ARRAY="arret_title_parts[]">[#PARTIE|textebrut]</LET>
+		<LET ARRAY="decision_title_parts[]">[#PARTIE|textebrut]</LET>
 	</IF>
 	<IF COND="[#DATE|isadate] AND [#DATE] NE '0000-00-00' AND [#DATE] NE NULL">
-		<LET ARRAY="arret_title_parts[]">[#DATE|humandate]</LET>
+		<LET ARRAY="decision_title_parts[]">[#DATE|humandate]</LET>
 	</IF>
 	<IF COND="[#LEBON]">
-		<LET ARRAY="arret_title_parts[]">[#LEBON|textebrut]</LET>
+		<LET ARRAY="decision_title_parts[]">[#LEBON|textebrut]</LET>
 	</IF>
-	[#ARRET_TITLE_PARTS|join(' – ')]
+	[#DECISION_TITLE_PARTS|join(' – ')]
 </DEFMACRO>
 
 /**
  * Sous-titre de la noticejuridique dans le sommaire des publications.
  */
 <DEFMACRO NAME="ALYODA_SOUSTITRE_NOTICEJURIDIQUE">
-	<LOOP NAME="alyoda_soustitre_noticejuridique" TABLE="arrets" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, chambre, partie" ORDER="rank">
+	<LOOP NAME="alyoda_soustitre_noticejuridique" TABLE="decisions" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, chambre, partie" ORDER="rank">
 		<!--[ Récupérer les index dans des variables ]-->
-		<MACRO NAME="ALYODA_ARRETS_INFOS"/>
-		<p class="toc__subtitle">[#ARRET_TITLE]</p>
+		<MACRO NAME="ALYODA_DECISIONS_INFOS"/>
+		<p class="toc__subtitle">[#DECISION_TITLE]</p>
 	</LOOP>
 </DEFMACRO>
 
@@ -319,7 +319,7 @@
 </DEFFUNC>
 
 /**
- * Affichage des textes et arrets associés à l'entrée.
+ * Affichage des textes et decisions associés à l'entrée.
  * EDIT: compatibilité avec le ME Alyoda.
  */
 <DEFMACRO NAME="ENTREE_LISTE_TEXTES">
@@ -339,8 +339,8 @@
 		</SWITCH>
 	</LOOP>
 
-	<LOOP NAME="entree_liste_textes_arrets" 
-		TABLE="arrets" 
+	<LOOP NAME="entree_liste_textes_decisions" 
+		TABLE="decisions" 
 		SELECT="idparent"
 		WHERE="identry='[#ID]'">
 		<LET ARRAY="textes_array[]" GLOBAL="1">[#IDPARENT]</LET>

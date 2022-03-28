@@ -372,23 +372,6 @@
 </DEFMACRO>
 
 /**
- * Afficher une entrée d'index
- * EDIT: ne pas afficher le nombre qui est faux ici.
- */
-<DEFMACRO NAME="ENTREES_ENTREE">
-	<LOOP NAME="entrees_entree_count"
-		TABLE="relations, entities"
-		SELECT="count(id) AS n"
-		WHERE="id2 = '[#ID]' AND type NOT IN ('informations', 'actualite') AND id1 = entities.id AND entities.id [#NOT_IN_TRADUCTIONS]">
-		<IF COND="[#N] EQ '0'">
-			[#G_NAME]
-		<ELSE/>
-			<a class="index-list__entree" href="[#ID|makeurlwithid]">[#G_NAME]</a>
-		</IF>
-	</LOOP>
-</DEFMACRO>
-
-/**
  * Bouton "Retour à l'index".
  * EDIT: suppression. Un même auteur peut-être affiché dans plusieurs (faux) index, il est donc impossible de produire un lien de retour unique.
  */

@@ -159,6 +159,107 @@
  */
 
 /**
+* Affiche le sommaire récursif d'une publication (sauf type collection).
+* EDIT: classement par rubriques d'abord, puis sommaire classique avec les documents restants.
+*/
+<DEFMACRO NAME="PUBLICATION_SOMMAIRE">
+	<LET VAR="id_publi">[#ID]</LET>
+	<LET VAR="parent_is_rubrique"><IF COND="([#TYPE] EQ 'rubrique' OR [#TYPE] EQ 'rubriqueannuelle') AND [#DATEPUBLI|isadate]">1</IF></LET>
+	<LET ARRAY="notices_avec_theme" GLOBAL="1"></LET>
+	<LET ARRAY="notices_avec_theme[]" GLOBAL="1">-1</LET> <!--[ jamais vide ]-->
+
+	<LOOP NAME="publication_sommaire_index_theme" TABLE="entrytypes" WHERE="class = 'indexes' AND type = 'theme'" SELECT="id AS idtype" ORDER="rank">
+		<LOOP NAME="publication_sommaire_themes" TABLE="entries" SELECT="id AS idtheme, g_name AS nomtheme" WHERE="idtype = '[#IDTYPE]'" ORDER="g_name">
+			<LET VAR="notices_found">
+				<LOOP NAME="publication_sommaire_notices" TABLE="textes" WHERE="idparent = '[#ID_PUBLI]' AND type = 'noticejuridique'" ORDER="rank">
+					<LOOP NAME="article_motscles_entrees" 
+					TABLE="entries" SELECT="id as selectnothing" 
+					WHERE="iddocument = '[#ID]' AND degree = '1' AND id = '[#IDTHEME]'" 
+					ORDER="degree">
+						<LET VAR="publi_dir"><FUNC NAME="BASE_GET_LANG_DIR" LANG="[#LANGUE]"/></LET>
+						<li class="toc__li toc__li--class-textes" lang="[#LANGUE]" dir="[#PUBLI_DIR]">
+							<FUNC NAME="PUBLICATION_LI_TEXTE"/>
+						</li>
+						<LET ARRAY="notices_avec_theme[]" GLOBAL="1">[#ID]</LET>
+					</LOOP>
+				</LOOP>
+			</LET>
+
+			<IF COND="[#NOTICES_FOUND]">
+				<h2 class="toc__theme-name">[#NOMTHEME]</h2>
+				<ul class="toc__contents toc__contents--theme">
+					[#NOTICES_FOUND]
+				</ul>
+			</IF>
+		</LOOP>
+	</LOOP>
+
+	<LET VAR="not_in_notices_avec_theme">NOT IN ('[%NOTICES_AVEC_THEME|join("', '")]')</LET>
+
+	<LOOP NAME="publication_sommaire"
+		TABLE="entities, types"
+		SELECT="id, class, type"
+		WHERE="idparent = '[#ID]' AND id [#NOT_IN_TRADUCTIONS_PARENT_UNIQUE] AND id [#NOT_IN_NOTICES_AVEC_THEME] AND type NOT IN ('fluxdesyndication','imageaccroche','rubriqueannuelle', 'imageaccrochelibrairie') AND type NOT LIKE '%annexe%' AND entities.idtype = types.id"
+		ORDER="entities.rank">
+
+		<BEFORE>
+			<ul class="toc__contents toc__contents--sommaire">
+		</BEFORE>
+
+		<DO>
+			<LOOP NAME="publication_sommaire_item" TABLE="#_TP_[#CLASS]" WHERE="identity = '[#ID]'">
+				<LET VAR="publi_dir"><FUNC NAME="BASE_GET_LANG_DIR" LANG="[#LANGUE]"/></LET>
+				<li class="toc__li toc__li--class-[#CLASS]" lang="[#LANGUE]" dir="[#PUBLI_DIR]">
+					<SWITCH TEST="[#CLASS]">
+						<!--[ Publications ]-->
+						<DO CASE="publications">
+							<IF COND="[#TYPE] EQ 'rubrique' OR [#TYPE] EQ 'souspartie'">
+								<div class="toc__header">
+									<!--[ Titre ]-->
+									<h2 class="toc__publi-title">[#TITRE]</h2>
+									<!--[ Sous-titre ]-->
+									<IF COND="[#SOUSTITRE]">
+										<div class="toc__publi-subtitle">
+											[#SOUSTITRE]
+										</div>
+									</IF>
+									<!--[ Titres alternatifs ]-->
+									<IF COND="[#ALTERTITRE]">
+										<div class="toc__publi-altertitle">
+											[#ALTERTITRE|replace('r2r:ml', 'p')]
+										</div>
+									</IF>
+									<!--[ Directeur de la publication ]-->
+									<FUNC NAME="BASE_LISTER_PERSONNES" TYPE="directeurdelapublication" WRAP_CLASS="toc__director" PREPEND="[@DIRECTEUR_PUBLICATION] " />
+									<!--[ Introduction ]-->
+									<FUNC NAME="BASE_ML_ONGLETS" TAB_TEXTE="[#INTRODUCTION]" TAB_ID="introduction-[#ID]" />
+								</div>
+								<!--[ Sommaire ]-->
+								<LET VAR="id_publi">[#ID]</LET>
+								<LOOP NAME="publication_sommaire"></LOOP>
+							</IF>
+						</DO>
+						<!--[ Textes ]-->
+						<DO CASE="textes">
+							<FUNC NAME="PUBLICATION_LI_TEXTE" AFFICHER_DATEPUBLI="[#PARENT_IS_RUBRIQUE]" />
+						</DO>
+					</SWITCH>
+				</li>
+			</LOOP>
+		</DO>
+
+		<AFTER>
+				<FUNC NAME="PUBLICATION_ALIASES" ID_PUBLI="[#ID_PUBLI]" WRAP_TAG="li" />
+			</ul>
+		</AFTER>
+
+		<ALTERNATIVE>
+			<FUNC NAME="PUBLICATION_ALIASES" ID_PUBLI="[#ID_PUBLI]" />
+		</ALTERNATIVE>
+	</LOOP>
+</DEFMACRO>
+
+/**
  * Affiche le titre, le sous-titre d'un document avec la mention "texte intégral", et le numéro du doc.
  * @param {boolean} [afficher_soustitre] - Affichage du sous-titre.
  * @param {boolean} [afficher_titres_traduits] - Affichage des titres traduits.

@@ -74,7 +74,8 @@
 	<LOOP NAME="noticejuridique_decisions" TABLE="decisions" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions, chambre, partie" ORDER="rank">
 		<BEFORE>
 			<section class="noticejuridique__decisions col-12 px-0">
-				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@DECISIONS]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-decisions" />
+				<LET VAR="decisions_section_title"><IF COND="[#NBRESULTS] GT 1">[@DECISIONS]<ELSE/>[@DECISION]</IF></LET>
+				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[#DECISIONS_SECTION_TITLE]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-decisions" />
 		</BEFORE>
 		<DO>
 			<!--[ Récupérer les index dans des variables ]-->

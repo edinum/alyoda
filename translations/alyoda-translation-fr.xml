@@ -139,6 +139,7 @@
 <contents name="auteurs_noteuniversitaire" textgroup="site" status="2">Universitaires</contents>
 <contents name="auteurs_notedavocat" textgroup="site" status="2">Avocats</contents>
 <contents name="decision_more" textgroup="site" status="2">Informations complémentaires</contents>
+<contents name="decision" textgroup="site" status="2">Décision de justice</contents>
 <contents name="decisions" textgroup="site" status="2">Décisions de justice</contents>
 <contents name="juridiction" textgroup="site" status="2">Juridiction</contents>
 <contents name="numero_decision" textgroup="site" status="2">Numéro de la décision</contents>

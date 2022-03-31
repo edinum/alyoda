@@ -171,7 +171,7 @@
 		<ALTERNATIVE>
 			<!--[ Texte de la noticejuridique uniquement ]-->
 			<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTE]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-textes" />
-			<LET VAR="titre"><FUNC NAME="NOTICEJURIDIQUE_GET_TYPE_TITLE" TYPE="[#TYPE]"/></LET>
+			<LET VAR="titre">[@RESUME]</LET>
 			<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
 		</ALTERNATIVE>
 	</LOOP>

@@ -32,7 +32,7 @@
 	<MACRO NAME="NOTICEJURIDIQUE_HEADER" />
 	<MACRO NAME="NOTICEJURIDIQUE_DECISIONS"/>
 	<MACRO NAME="NOTICEJURIDIQUE_MOTSCLES" />
-	<MACRO NAME="DECISON_TEXTES"/>
+	<MACRO NAME="NOTICEJURIDIQUE_TEXTES"/>
 	<MACRO NAME="NOTICEJURIDIQUE_LICENSE" />
 	<FUNC NAME="NAV_ENTITIES" SHOW_BUTTONS="1" />
 </DEFMACRO>
@@ -143,11 +143,11 @@
 /**
  * Textes enfants de la noticejuridique.
  */
-<DEFMACRO NAME="DECISON_TEXTES">
+<DEFMACRO NAME="NOTICEJURIDIQUE_TEXTES">
 	<LET VAR="noticejuridique_textes_order">type, rank</LET>
 	<LET VAR="noticejuridique_tabs_prefix">noticejuridique-textes-tab-</LET>
 
-	<LOOP NAME="noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#DECISON_TEXTES_ORDER]'">
+	<LOOP NAME="noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#NOTICEJURIDIQUE_TEXTES_ORDER]'">
 		<BEFORE>
 			<section class="noticejuridique__textes">
 				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTES]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-textes" />
@@ -181,7 +181,7 @@
  * Onglets des textes enfants de la noticejuridique.
  */
 <DEFMACRO NAME="NOTICEJURIDIQUE_TEXTES_TABS">
-	<LOOP NAME="noticejuridique_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="'[#DECISON_TEXTES_ORDER]'">
+	<LOOP NAME="noticejuridique_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="'[#NOTICEJURIDIQUE_TEXTES_ORDER]'">
 		<BEFORE>
 			<ul class="nav nav-tabs" role="tablist">
 				<!--[ Résumé de la noticejuridique ]-->

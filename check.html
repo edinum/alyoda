@@ -9,7 +9,7 @@
 			"type": "[#TYPE]",
 			"numerodocument": [#NUMERODOCUMENT],
 			"parent": [#IDPARENT],
-			"children": [<LOOP NAME="check_children" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id" ORDER="id">
+			"children": [<LOOP NAME="check_children" TABLE="entities" WHERE="idparent = '[#ID]'" SELECT="id" ORDER="id">
 				<IF COND="[#COUNT] NE 1">,</IF>
 				[#ID]
 			</LOOP>]

@@ -1,0 +1,6 @@
+<LET ARRAY="nums" GLOBAL="1"></LET>
+<LOOP NAME="check2_textes" TABLE="textes" WHERE="type = 'noticejuridique'" SELECT="numerodocument, id AS id1" ORDER="id">
+	<LOOP NAME="check2_doublons" TABLE="textes" WHERE="type = 'noticejuridique' AND numerodocument = '[#NUMERODOCUMENT]' AND id != '[#ID1]'" ORDER="id">
+		<br> id1: [#ID1], id2: [#ID], numerodocument: [#NUMERODOCUMENT]
+	</LOOP>
+</LOOP>

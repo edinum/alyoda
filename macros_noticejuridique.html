@@ -149,8 +149,28 @@
 
 	<LOOP NAME="noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#NOTICEJURIDIQUE_TEXTES_ORDER]'">
 		<BEFORE>
-			<section class="noticejuridique__textes">
-				<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTES]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-textes" />
+			<section class="noticejuridique__textes article__text">
+				<div class="article_text__section article_text__section--border">
+
+					<!--[ Section header ]-->
+					<div class="row">
+						<div class="col col-md-3">
+							<IF COND="[#NBRESULTS] EQ 1">
+								<LET VAR="text_section_title">[@TEXTE]</LET>
+							<ELSE/>
+								<LET VAR="text_section_title">[@TEXTES]</LET>
+							</IF>
+							<FUNC NAME="BASE_SECTION_HEADER" NO_ARROW="TRUE" TITLE="[#TEXT_SECTION_TITLE]" SECTION_ID="text" />
+						</div>
+						<div class="col-7 col-md-8 article_text__section--buttons">
+							<MACRO NAME="ARTICLE_BOUTONS" />
+						</div>
+						<div class="col-1">
+						<a class="section-header-arrow" href="#main-content"><img class="icon icon_arrow_top" title="arrow top" src="tpl/public/icons/arrow-top.svg" /></a>
+						</div>
+					</div>
+				</div>
+
 				<MACRO NAME="NOTICEJURIDIQUE_TEXTES_TABS"/>
 				<div class="tab-content">
 					<!--[ Résumé de la noticejuridique ]-->
@@ -214,9 +234,6 @@
  * Texte enfant.
  */
 <DEFMACRO NAME="NOTICEJURIDIQUE_TEXTE">
-	<!--[ Boutons de partage ]-->
-	<MACRO NAME="NOTICEJURIDIQUE_BOUTONS" />
-
 	<!--[ Header (titres) ]-->
 	<MACRO NAME="NOTICEJURIDIQUE_TEXTE_HEADER"/>
 
@@ -233,22 +250,6 @@
 	<!--[ Notes ]-->
 	<MACRO NAME="ARTICLE_NOTESBASPAGE" />
 	<MACRO NAME="ARTICLE_NOTEFIN" />
-</DEFMACRO>
-
-/**
- * Boutons du header (facsimilé, print, partage).
- */
-<DEFMACRO NAME="NOTICEJURIDIQUE_BOUTONS">
-	<div class="noticejuridique__buttons">
-		<ul class="noticejuridique__buttons-list nav nav-pills">
-			<!--[ Bouton fac-similé ]-->
-			<MACRO NAME="ARTICLE_BOUTON_PDF" />
-			<!--[ Bouton de téléchargement de la TEI ]-->
-			<MACRO NAME="ARTICLE_BOUTON_TEI" />
-			<!--[ Boutons de partage (de la noticejuridique parente) ]-->
-			[#NOTICEJURIDIQUE_LIENS_PARTAGE]
-		</ul>
-	</div>
 </DEFMACRO>
 
 /**

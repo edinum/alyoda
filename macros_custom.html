@@ -626,3 +626,64 @@
 		</ul>
 	</section>
 </DEFMACRO>
+
+/**
+ * Résultats de recherche de Lodel.
+ */
+<DEFMACRO NAME="SEARCH_RESULTS">
+	<!--[ Calculer les résultats de recherche ]-->
+	<LET ARRAY="search_results" GLOBAL="1"></LET>
+	<LOOP NAME="search" SPLIT="9999999">
+
+		<LOOP NAME="search_lodelsearch_type"
+			TABLE="entities, types"
+			SELECT="entities.id, class, type"
+			WHERE="entities.id = '[#ID]' AND entities.idtype = types.id">
+
+			<IF COND="[#CLASS] EQ 'textes' OR [#CLASS] EQ 'decisions'">
+				<LOOP NAME="search_lodelsearch_item"
+					TABLE="#_TP_[#CLASS]"
+					WHERE="identity = '[#ID]'">
+					
+					<LOOP NAME="search_lodelsearch_parent" 
+						TABLE="entities, types" 
+						WHERE="entities.id = '[#IDPARENT]' AND entities.idtype = types.id" 
+						SELECT="type">
+
+						<IF COND="[#TYPE] EQ 'noticejuridique'">
+							<LET ARRAY="search_results[]" GLOBAL="1">[#IDPARENT]</LET>
+						<ELSE/>
+							<LET ARRAY="search_results[]" GLOBAL="1">[#ID]</LET>
+						</IF>
+					</LOOP>
+				</LOOP>
+			</IF>
+		</LOOP>
+	</LOOP>
+
+	<!--[ Afficher les résultats ]-->
+	<LET VAR="search_results_str">[%SEARCH_RESULTS|array_unique|join(',')]</LET>
+	<IF COND="[#SEARCH_RESULTS_STR]">
+		<LOOP NAME="search_lodelsearch_display" 
+			TABLE="textes" 
+			WHERE="id IN ([#SEARCH_RESULTS_STR]) AND id [#NOT_IN_TRADUCTIONS]" 
+			SPLIT="[%RESULTATS_PAR_PAGE]">
+			<BEFORE>
+				<section id="search-results" class="search-results">
+					<ul class="toc__contents toc__contents--search-results">
+			</BEFORE>
+			<DO>
+				<li class="toc__li toc__li--class-[#CLASS]" lang="[#LANGUE]">
+					<FUNC NAME="PUBLICATION_LI_TEXTE" AFFICHER_DATEPUBLI="[#PARENT_IS_RUBRIQUE]" />
+				</li>
+			</DO>
+			<AFTER>
+					</ul>
+					<MACRO NAME="SEARCH_LODELSEARCH_PREV_NEXT" />
+				</section>
+			</AFTER>
+		</LOOP>
+	<ELSE/>
+		<p>[@AUCUN_RESULTAT]</p>
+	</IF>
+</DEFMACRO>

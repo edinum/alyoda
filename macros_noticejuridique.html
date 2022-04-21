@@ -147,30 +147,10 @@
 	<LET VAR="noticejuridique_textes_order">type, rank</LET>
 	<LET VAR="noticejuridique_tabs_prefix">noticejuridique-textes-tab-</LET>
 
-	<LOOP NAME="noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#NOTICEJURIDIQUE_TEXTES_ORDER]'">
-		<BEFORE>
-			<section class="noticejuridique__textes article__text">
-				<div class="article_text__section article_text__section--border">
-
-					<!--[ Section header ]-->
-					<div class="row">
-						<div class="col col-md-3">
-							<IF COND="[#NBRESULTS] EQ 1">
-								<LET VAR="text_section_title">[@TEXTE]</LET>
-							<ELSE/>
-								<LET VAR="text_section_title">[@TEXTES]</LET>
-							</IF>
-							<FUNC NAME="BASE_SECTION_HEADER" NO_ARROW="TRUE" TITLE="[#TEXT_SECTION_TITLE]" SECTION_ID="text" />
-						</div>
-						<div class="col-7 col-md-8 article_text__section--buttons">
-							<MACRO NAME="ARTICLE_BOUTONS" />
-						</div>
-						<div class="col-1">
-						<a class="section-header-arrow" href="#main-content"><img class="icon icon_arrow_top" title="arrow top" src="tpl/public/icons/arrow-top.svg" /></a>
-						</div>
-					</div>
-				</div>
-
+	<section class="noticejuridique__textes article__text">
+		<LOOP NAME="noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#NOTICEJURIDIQUE_TEXTES_ORDER]'">
+			<BEFORE>
+				<FUNC NAME="NOTICEJURIDIQUE_TEXTES_SECTION_HEADER" TITLE="[@TEXTES]" />
 				<MACRO NAME="NOTICEJURIDIQUE_TEXTES_TABS"/>
 				<div class="tab-content">
 					<!--[ Résumé de la noticejuridique ]-->
@@ -178,24 +158,44 @@
 						<LET VAR="titre">[@RESUME]</LET>
 						<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
 					</div>
-		</BEFORE>
-		<DO>
-			<div role="tabpanel" id="[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" class="tab-pane" lang="[#LANGUE]" xml:lang="[#LANGUE]">
-				<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
-			</div>
-		</DO>
-		<AFTER>
+			</BEFORE>
+			<DO>
+				<div role="tabpanel" id="[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" class="tab-pane" lang="[#LANGUE]" xml:lang="[#LANGUE]">
+					<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
 				</div>
-			</section>
-		</AFTER>
-		<ALTERNATIVE>
-			<!--[ Texte de la noticejuridique uniquement ]-->
-			<FUNC NAME="BASE_SECTION_HEADER" TITLE="[@TEXTE]" NO_ARROW="TRUE" SECTION_ID="noticejuridique-textes" />
-			<LET VAR="titre">[@RESUME]</LET>
-			<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
-		</ALTERNATIVE>
-	</LOOP>
+			</DO>
+			<AFTER>
+				</div>
+			</AFTER>
+			<ALTERNATIVE>
+				<!--[ Texte de la noticejuridique uniquement ]-->
+				<FUNC NAME="NOTICEJURIDIQUE_TEXTES_SECTION_HEADER" TITLE="[@TEXTE]" />
+				<LET VAR="titre">[@RESUME]</LET>
+				<MACRO NAME="NOTICEJURIDIQUE_TEXTE"/>
+			</ALTERNATIVE>
+		</LOOP>
+	</section>
 </DEFMACRO>
+
+/**
+ * Section header "Texte" de notice juridique.
+ * @param {string} title - Titre du section header.
+ */
+<DEFFUNC NAME="NOTICEJURIDIQUE_TEXTES_SECTION_HEADER" REQUIRED="title">
+	<div class="article_text__section article_text__section--border">
+		<div class="row">
+			<div class="col col-md-3">
+				<FUNC NAME="BASE_SECTION_HEADER" NO_ARROW="TRUE" TITLE="[#TITLE]" SECTION_ID="text" />
+			</div>
+			<div class="col-7 col-md-8 article_text__section--buttons">
+				<MACRO NAME="ARTICLE_BOUTONS" />
+			</div>
+			<div class="col-1">
+			<a class="section-header-arrow" href="#main-content"><img class="icon icon_arrow_top" title="arrow top" src="tpl/public/icons/arrow-top.svg" /></a>
+			</div>
+		</div>
+	</div>
+</DEFFUNC>
 
 /**
  * Onglets des textes enfants de la noticejuridique.

@@ -144,11 +144,11 @@
  * Textes enfants de la noticejuridique.
  */
 <DEFMACRO NAME="NOTICEJURIDIQUE_TEXTES">
-	<LET VAR="noticejuridique_textes_order">type, rank</LET>
+	<LET VAR="noticejuridique_textes_order">alias_entities_textes.rank</LET>
 	<LET VAR="noticejuridique_tabs_prefix">noticejuridique-textes-tab-</LET>
 
 	<section class="noticejuridique__textes article__text">
-		<LOOP NAME="noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="'[#NOTICEJURIDIQUE_TEXTES_ORDER]'">
+		<LOOP NAME="noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="[#NOTICEJURIDIQUE_TEXTES_ORDER]">
 			<BEFORE>
 				<FUNC NAME="NOTICEJURIDIQUE_TEXTES_SECTION_HEADER" TITLE="[@TEXTES]" />
 				<MACRO NAME="NOTICEJURIDIQUE_TEXTES_TABS"/>
@@ -201,7 +201,7 @@
  * Onglets des textes enfants de la noticejuridique.
  */
 <DEFMACRO NAME="NOTICEJURIDIQUE_TEXTES_TABS">
-	<LOOP NAME="noticejuridique_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="'[#NOTICEJURIDIQUE_TEXTES_ORDER]'">
+	<LOOP NAME="noticejuridique_textes_tabs" TABLE="textes" WHERE="idparent = '[#ID]'" SELECT="id, type, titre" ORDER="[#NOTICEJURIDIQUE_TEXTES_ORDER]">
 		<BEFORE>
 			<ul class="nav nav-tabs" role="tablist">
 				<!--[ Résumé de la noticejuridique ]-->

@@ -108,7 +108,6 @@
 <contents name="telecharger_facsimile" textgroup="site" status="2">Fac-similé</contents>
 <contents name="telecharger_pdf" textgroup="site" status="2">PDF</contents>
 <contents name="texte" textgroup="site" status="2">Texte</contents>
-<contents name="textes" textgroup="site" status="2">Textes</contents>
 <contents name="texte_extrait" textgroup="site" status="2">Extrait</contents>
 <contents name="texte_integral" textgroup="site" status="2">Texte</contents>
 <contents name="toc" textgroup="site" status="2">Plan</contents>

@@ -948,9 +948,7 @@
 
 	<LOOP NAME="pdfgen_noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="[#NOTICEJURIDIQUE_TEXTES_ORDER]">
 		<BEFORE>
-			<h2 class="section-header"><IF COND="[#NBRESULTS] LT 2">[@TEXTE]<ELSE/>[@TEXTES]</IF></h2>
 			<!--[ Résumé de la noticejuridique (texte parent) ]-->
-			<LET VAR="titre">[@RESUME]</LET>
 			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
 		</BEFORE>
 		<DO>
@@ -959,8 +957,6 @@
 		</DO>
 		<ALTERNATIVE>
 			<!--[ Texte de la noticejuridique (texte parent) uniquement ]-->
-			<h2 class="section-header">[@TEXTE]</h2>
-			<LET VAR="titre">[@RESUME]</LET>
 			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
 		</ALTERNATIVE>
 	</LOOP>
@@ -971,6 +967,7 @@
  */
 <DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE">
 	<div class="noticejuridique__texte">
+		<h2 class="section-header"><FUNC NAME="PDFGEN_NOTICEJURIDIQUE_GET_TYPE_TITLE" TYPE="[#TYPE]"/></h2>
 		<MACRO NAME="PDFGEN_ARTICLE_ADDENDUM" />
 		<section class="article__text">
 			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_HEADER"/>
@@ -983,6 +980,20 @@
 		<MACRO NAME="PDFGEN_ARTICLE_NOTEFIN" />
 	</div>
 </DEFMACRO>
+
+/**
+ * Récupérer le titre d'un type dans la langue du site.
+ * @param {string} type - Type.
+ */
+<DEFFUNC NAME="PDFGEN_NOTICEJURIDIQUE_GET_TYPE_TITLE" REQUIRED="type">
+	<IF COND="[#TYPE] EQ 'noticejuridique'">
+		[@RESUME]
+	<ELSE/>
+		<LOOP NAME="pdfgen_noticejuridique_get_type_title" TABLE="types" SELECT="title, altertitle" WHERE="type='[#TYPE]'" LIMIT="0,1">
+			<IF COND="[#ALTERTITLE:#SITELANG]"/>[#ALTERTITLE:#SITELANG]<ELSE/>[#TITLE]</IF>
+		</LOOP>
+	</IF>
+</DEFFUNC>
 
 /**
  * Header du texte enfant.

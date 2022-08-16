@@ -211,7 +211,7 @@
 		</BEFORE>
 		<DO>
 			<li class="nav-item">
-				<a class="nav-link" href="#[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" aria-controls="#[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" role="tab" data-toggle="tab"><FUNC NAME="NOTICEJURIDIQUE_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
+				<a class="nav-link" href="#[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" aria-controls="#[#NOTICEJURIDIQUE_TABS_PREFIX][#COUNT]" role="tab" data-toggle="tab"><FUNC NAME="ALYODA_GET_TYPE_TITLE" TYPE="[#TYPE]"/></a>
 			</li>
 		</DO>
 		<AFTER>
@@ -219,16 +219,6 @@
 		</AFTER>
 	</LOOP>
 </DEFMACRO>
-
-/**
- * Récupérer le titre d'un type dans la langue du site.
- * @param {string} type - Type.
- */
-<DEFFUNC NAME="NOTICEJURIDIQUE_GET_TYPE_TITLE" REQUIRED="type">
-	<LOOP NAME="noticejuridique_get_type_title" TABLE="types" SELECT="title, altertitle" WHERE="type='[#TYPE]'" LIMIT="0,1">
-		<IF COND="[#ALTERTITLE:#SITELANG]"/>[#ALTERTITLE:#SITELANG]<ELSE/>[#TITLE]</IF>
-	</LOOP>
-</DEFFUNC>
 
 /**
  * Texte enfant.

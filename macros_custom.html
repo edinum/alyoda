@@ -29,8 +29,9 @@
 </DEFMACRO>
 
 /**
+ * =============================
  * 1. ALYODA : NOUVELLES MACROS
- * ============================
+ * =============================
  */
 
  /**
@@ -154,8 +155,23 @@
 </DEFFUNC>
 
 /**
+ * Récupérer le titre d'un type dans la langue du site.
+ * @param {string} type - Type.
+ */
+<DEFFUNC NAME="ALYODA_GET_TYPE_TITLE" REQUIRED="type">
+	<IF COND="[#TYPE] EQ 'noticejuridique'">
+		[@RESUME]
+	<ELSE/>
+		<LOOP NAME="alyoda_get_type_title" TABLE="types" SELECT="title, altertitle" WHERE="type='[#TYPE]'" LIMIT="0,1">
+			<IF COND="[#ALTERTITLE:#SITELANG]"/>[#ALTERTITLE:#SITELANG]<ELSE/>[#TITLE]</IF>
+		</LOOP>
+	</IF>
+</DEFFUNC>
+
+/**
+ * ==================================
  * 2. ALYODA : SURCHARGES DE LA NOVA
- * =================================
+ * ==================================
  */
 
 /**
@@ -712,9 +728,9 @@
 </DEFMACRO>
 
 /**
- * ======================================
- * PERSONNALISATION DE PDFGEN POUR ALYODA
- * ======================================
+ * =================================
+ * 3. ALYODA : SURCHARGES DE PDFGEN
+ * =================================
  */
 
  /**
@@ -731,7 +747,7 @@
 
 	<SWITCH TEST="[%TPL_TYPE]">
 		<DO CASE="noticejuridique">
-			<MACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_MAIN"/>
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_MAIN"/>
 		</DO>
 		<DO CASE="textes">
 			<MACRO NAME="PDFGEN_ARTICLE_MAIN"/>
@@ -799,18 +815,17 @@
 	</IF>
 </DEFMACRO>
 
-
 /**
  * PDFGEN: macro principale des notices juridiques.
  */
-<DEFMACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_MAIN">
-	<LOOP NAME="custom_pdfgen_noticejuridique_main" TABLE="textes" WHERE="id=[#DOCUMENT]">
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_MAIN">
+	<LOOP NAME="pdfgen_noticejuridique_main" TABLE="textes" WHERE="id=[#DOCUMENT]">
 		<MACRO NAME="PDFGEN_ARTICLE_INIT" />
 		<MACRO NAME="PDFGEN_ARTICLE_FRONT" />
 		<div class="main">
-			<MACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_DECISIONS"/>
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_DECISIONS"/>
 			<IF COND="[#TEXTE_ACCESSIBLE]">
-				<MACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_TEXTES"/>
+				<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTES"/>
 			<ELSE />
 				<p>[@PDFGEN.AVERTISSEMENT_TEXTE_INTEGRAL] [#DATEPUBLI|formateddate('%B %Y')].</p>
 			</IF>
@@ -823,8 +838,8 @@
 /**
  * Décisions associées à la noticejuridique.
  */
-<DEFMACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_DECISIONS">
-	<LOOP NAME="custom_pdfgen_noticejuridique_decisions" TABLE="decisions" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions, chambre, partie" ORDER="rank">
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_DECISIONS">
+	<LOOP NAME="pdfgen_noticejuridique_decisions" TABLE="decisions" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions, chambre, partie" ORDER="rank">
 		<BEFORE>
 			<section class="noticejuridique__decisions">
 				<LET VAR="decisions_section_title"><IF COND="[#NBRESULTS] GT 1">[@DECISIONS]<ELSE/>[@DECISION]</IF></LET>
@@ -857,22 +872,22 @@
 /**
  * Textes parent et enfants de la notice juridique.
  */
-<DEFMACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_TEXTES">
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTES">
 	<LET VAR="noticejuridique_textes_order">alias_entities_textes.rank</LET>
 	<LET VAR="noticejuridique_tabs_prefix">noticejuridique-textes-tab-</LET>
 
-	<LOOP NAME="custom_pdfgen_noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="[#NOTICEJURIDIQUE_TEXTES_ORDER]">
+	<LOOP NAME="pdfgen_noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="[#NOTICEJURIDIQUE_TEXTES_ORDER]">
 		<BEFORE>
 			<!--[ Résumé de la noticejuridique (texte parent) ]-->
-			<MACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
 		</BEFORE>
 		<DO>
 			<!--[ Textes enfants ]-->
-			<MACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
 		</DO>
 		<ALTERNATIVE>
 			<!--[ Texte de la noticejuridique (texte parent) uniquement ]-->
-			<MACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
 		</ALTERNATIVE>
 	</LOOP>
 </DEFMACRO>
@@ -880,9 +895,9 @@
 /**
  * Texte de la notice juridique.
  */
-<DEFMACRO NAME="CUSTOM_PDFGEN_NOTICEJURIDIQUE_TEXTE">
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE">
 	<div class="noticejuridique__texte">
-		<h2 class="section-header"><FUNC NAME="PDFGEN_NOTICEJURIDIQUE_GET_TYPE_TITLE" TYPE="[#TYPE]"/></h2>
+		<h2 class="section-header"><FUNC NAME="ALYODA_GET_TYPE_TITLE" TYPE="[#TYPE]"/></h2>
 		<MACRO NAME="PDFGEN_ARTICLE_ADDENDUM" />
 		<section class="article__text">
 			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_HEADER"/>
@@ -895,20 +910,6 @@
 		<MACRO NAME="PDFGEN_ARTICLE_NOTEFIN" />
 	</div>
 </DEFMACRO>
-
-/**
- * Récupérer le titre d'un type dans la langue du site.
- * @param {string} type - Type.
- */
-<DEFFUNC NAME="PDFGEN_NOTICEJURIDIQUE_GET_TYPE_TITLE" REQUIRED="type">
-	<IF COND="[#TYPE] EQ 'noticejuridique'">
-		[@RESUME]
-	<ELSE/>
-		<LOOP NAME="pdfgen_noticejuridique_get_type_title" TABLE="types" SELECT="title, altertitle" WHERE="type='[#TYPE]'" LIMIT="0,1">
-			<IF COND="[#ALTERTITLE:#SITELANG]"/>[#ALTERTITLE:#SITELANG]<ELSE/>[#TITLE]</IF>
-		</LOOP>
-	</IF>
-</DEFFUNC>
 
 /**
  * Header du texte enfant.

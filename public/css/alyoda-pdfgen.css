@@ -5,3 +5,7 @@
 .main-title {
 	string-set: title content(text);
 }
+
+.noticejuridique__texte {
+	margin-top: 4rem;
+}

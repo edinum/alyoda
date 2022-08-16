@@ -8,4 +8,5 @@ jspm_packages/
 .node_repl_history
 
 # CSS
-public/css/
+public/css/*
+!public/css/alyoda-pdfgen.css

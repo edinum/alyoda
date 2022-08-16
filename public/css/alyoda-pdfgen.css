@@ -2,6 +2,16 @@
 	display: none;
 }
 
+.article__person-idnos h4 {
+	margin-bottom: .1rem;
+}
+
+.article__person-idnos-list {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
 .noticejuridique__texte {
 	margin-top: 4rem;
 }

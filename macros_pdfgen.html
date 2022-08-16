@@ -11,13 +11,15 @@
  * Utilisation : ./?do=_pdfgen_view&document=999
  */
 <DEFMACRO NAME="PDFGEN_MAIN">
-
 	<MACRO NAME="PDFGEN_HTML_START"/>
 	
 	<!--[ Recherche du type du document ]-->
 	<MACRO NAME="PDFGEN_INIT_TYPE" />
 
 	<SWITCH TEST="[%TPL_TYPE]">
+		<DO CASE="noticejuridique">
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_MAIN"/>
+		</DO>
 		<DO CASE="textes">
 			<MACRO NAME="PDFGEN_ARTICLE_MAIN"/>
 		</DO>
@@ -41,7 +43,11 @@
 				WHERE="id = '[#DOCUMENT]' AND class IN ('publications', 'textes') AND entities.idtype = types.id">
 		<DO>
 			<IF COND="[#CLASS] EQ 'textes'">
-				<LET VAR="tpl_type" GLOBAL="1">textes</LET>
+				<IF COND="[#TYPE] EQ 'noticejuridique'">
+					<LET VAR="tpl_type" GLOBAL="1">noticejuridique</LET>
+				<ELSE/>
+					<LET VAR="tpl_type" GLOBAL="1">textes</LET>
+				</IF>
 			<ELSE/>
 				<LET VAR="tpl_type" GLOBAL="1">publications</LET>
 			</IF>
@@ -822,3 +828,91 @@
 		</IF>
 	</IF>
 </DEFFUNC>
+
+/**
+ * Macro principale des notices juridiques (Alyoda).
+ */
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_MAIN">
+	<LOOP NAME="pdfgen_noticejuridique_main" TABLE="textes" WHERE="id=[#DOCUMENT]">
+		<MACRO NAME="PDFGEN_ARTICLE_INIT" />
+		<MACRO NAME="PDFGEN_ARTICLE_FRONT" />
+		<div class="main">
+			<IF COND="[#TEXTE_ACCESSIBLE]">
+				<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTES"/>
+			<ELSE />
+				<p>[@PDFGEN.AVERTISSEMENT_TEXTE_INTEGRAL] [#DATEPUBLI|formateddate('%B %Y')].</p>
+			</IF>
+			<MACRO NAME="PDFGEN_ARTICLE_RESUMES" />
+			<MACRO NAME="PDFGEN_ARTICLE_MOTSCLES" />
+			<FUNC NAME="PDFGEN_ARTICLE_DESCRIPTION_PERSONNES" TYPE="auteur" />
+			<FUNC NAME="PDFGEN_ARTICLE_DESCRIPTION_PERSONNES" TYPE="traducteur" />
+		</div>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Textes parent et enfants de la notice juridique.
+ */
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTES">
+	<LET VAR="noticejuridique_textes_order">alias_entities_textes.rank</LET>
+	<LET VAR="noticejuridique_tabs_prefix">noticejuridique-textes-tab-</LET>
+
+	<LOOP NAME="pdfgen_noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="[#NOTICEJURIDIQUE_TEXTES_ORDER]">
+		<BEFORE>
+			<!--[ Résumé de la noticejuridique (texte parent) ]-->
+			<LET VAR="titre">[@RESUME]</LET>
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
+		</BEFORE>
+		<DO>
+			<!--[ Textes enfants ]-->
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
+		</DO>
+		<ALTERNATIVE>
+			<!--[ Texte de la noticejuridique (texte parent) uniquement ]-->
+			<LET VAR="titre">[@RESUME]</LET>
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
+		</ALTERNATIVE>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Texte de la notice juridique.
+ */
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE">
+	<div class="noticejuridique__texte">
+		<MACRO NAME="PDFGEN_ARTICLE_ADDENDUM" />
+		<section class="article__text">
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_HEADER"/>
+			<MACRO NAME="PDFGEN_ARTICLE_TEXTE_CONTENTS" />
+		</section>
+		<MACRO NAME="PDFGEN_ARTICLE_BIBLIOGRAPHIE" />
+		<MACRO NAME="PDFGEN_ARTICLE_ANNEXE" />
+		<MACRO NAME="PDFGEN_ARTICLE_NOTESBASPAGE" />
+		<MACRO NAME="PDFGEN_ARTICLE_NOTEFIN" />
+	</div>
+</DEFMACRO>
+
+/**
+ * Header du texte enfant.
+ */
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_HEADER">
+	<section class="noticejuridique__texte-header col-12">
+		<!--[ Titre du document ]-->
+		<h1 class="main-title article__title">[#TITRE|removenotes]</h1>
+
+		<!--[ Sous-titre du document ]-->
+		<IF COND="[#SOUSTITRE]">
+			<p class="main-subtitle article__subtitle">[#SOUSTITRE|removenotes]</p>
+		</IF>
+
+		<!--[ Titres alternatifs ]-->
+		<IF COND="[#ALTERTITRE]">
+			<div class="main-altertitle article__altertitle">
+				<LET VAR="value">[#ALTERTITRE]</LET>
+				<LOOP NAME="mltext">
+					<p lang="[#LANG]">[#VALUE|removenotes]</p>
+				</LOOP>
+			</div>
+		</IF>
+	</section>
+</DEFMACRO>

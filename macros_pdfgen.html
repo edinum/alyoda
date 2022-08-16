@@ -670,7 +670,7 @@
 				<IF COND="[#COURRIEL]">
 					<a class="article__person-email" href="mailto:[#COURRIEL]">[#COURRIEL]</a>
 				</IF>
-				<MACRO NAME="ARTICLE_AUTEUR_IDNO" />
+				<MACRO NAME="PDFGEN_ARTICLE_AUTEUR_IDNO" />
 			</LOOP>
 		</DO>
 
@@ -683,15 +683,24 @@
 
 /**
  * Identifiants de l'auteur dans d'autres bases.
+ * EDIT: ajout UNIV-DROIT.
  */
-<DEFMACRO NAME="ARTICLE_AUTEUR_IDNO">
-	<FUNC NAME="ARTICLE_AUTEUR_IDNO_ITEM" TYPE="IDREF" URL="https://www.idref.fr/[#IDREF]" CONDITION="[#IDREF]" />
-	<FUNC NAME="ARTICLE_AUTEUR_IDNO_ITEM" TYPE="ORCID" URL="http://orcid.org/[#ORCID]" CONDITION="[#ORCID]" />
-	<FUNC NAME="ARTICLE_AUTEUR_IDNO_ITEM" TYPE="HAL" URL="https://cv.archives-ouvertes.fr/[#HAL]" CONDITION="[#HAL]" />
-	<FUNC NAME="ARTICLE_AUTEUR_IDNO_ITEM" TYPE="ISNI" URL="http://www.isni.org/[#ISNI]" CONDITION="[#ISNI]" />
-	<!--[ BNF: https://www.bnf.fr/fr/lidentifiant-ark-archival-resource-key ]-->
-	<IF COND="[#ARK] LIKE /(?<=\/cb)[^\/%.-]{8}(?=.?$)/">
-		<FUNC NAME="ARTICLE_AUTEUR_IDNO_ITEM" TYPE="BNF" CONDITION="1" URL="https://data.bnf.fr/fr/[#MATCHES.0.0]" />
+<DEFMACRO NAME="PDFGEN_ARTICLE_AUTEUR_IDNO">
+	<IF COND="[#UNIVDROIT] OR [#IDREF] OR [#ORCID] OR [#HAL] OR [#ISNI] OR [#ARK]">
+		<div class="article__person-idnos">
+			<h4>[@RESSOURCES_AUTEUR_AUTRES_BASES]</h4>
+			<ul class="article__person-idnos-list">
+				<FUNC NAME="PDFGEN_ARTICLE_AUTEUR_IDNO_ITEM" TYPE="UNIVDROIT" URL="https://univ-droit.fr/universitaires/[#UNIVDROIT]" CONDITION="[#UNIVDROIT]" />
+				<FUNC NAME="PDFGEN_ARTICLE_AUTEUR_IDNO_ITEM" TYPE="IDREF" URL="https://www.idref.fr/[#IDREF]" CONDITION="[#IDREF]" />
+				<FUNC NAME="PDFGEN_ARTICLE_AUTEUR_IDNO_ITEM" TYPE="ORCID" URL="http://orcid.org/[#ORCID]" CONDITION="[#ORCID]" />
+				<FUNC NAME="PDFGEN_ARTICLE_AUTEUR_IDNO_ITEM" TYPE="HAL" URL="https://cv.archives-ouvertes.fr/[#HAL]" CONDITION="[#HAL]" />
+				<FUNC NAME="PDFGEN_ARTICLE_AUTEUR_IDNO_ITEM" TYPE="ISNI" URL="http://www.isni.org/[#ISNI]" CONDITION="[#ISNI]" />
+				<!--[ BNF: https://www.bnf.fr/fr/lidentifiant-ark-archival-resource-key ]-->
+				<IF COND="[#ARK] LIKE /(?<=\/cb)[^\/%.-]{8}(?=.?$)/">
+					<FUNC NAME="PDFGEN_ARTICLE_AUTEUR_IDNO_ITEM" TYPE="BNF" CONDITION="1" URL="https://data.bnf.fr/fr/[#MATCHES.0.0]" />
+				</IF>
+			</ul>
+		</div>
 	</IF>
 </DEFMACRO>
 
@@ -701,7 +710,7 @@
 * @param {string} url - URL cible.
 * @param {boolean} [condition] - Affiche l'icone seulement si true.
 */
-<DEFFUNC NAME="ARTICLE_AUTEUR_IDNO_ITEM" REQUIRED="type, url" OPTIONAL="condition">
+<DEFFUNC NAME="PDFGEN_ARTICLE_AUTEUR_IDNO_ITEM" REQUIRED="type, url" OPTIONAL="condition">
 	<IF COND="[#CONDITION]">
 		<p class="article__person-idno">
 			[#TYPE]&nbsp;: [#URL]
@@ -844,8 +853,6 @@
 			</IF>
 			<MACRO NAME="PDFGEN_ARTICLE_RESUMES" />
 			<MACRO NAME="PDFGEN_ARTICLE_MOTSCLES" />
-			<FUNC NAME="PDFGEN_ARTICLE_DESCRIPTION_PERSONNES" TYPE="auteur" />
-			<FUNC NAME="PDFGEN_ARTICLE_DESCRIPTION_PERSONNES" TYPE="traducteur" />
 		</div>
 	</LOOP>
 </DEFMACRO>
@@ -883,6 +890,7 @@
 		<MACRO NAME="PDFGEN_ARTICLE_ADDENDUM" />
 		<section class="article__text">
 			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_HEADER"/>
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_AUTEURS"/>
 			<MACRO NAME="PDFGEN_ARTICLE_TEXTE_CONTENTS" />
 		</section>
 		<MACRO NAME="PDFGEN_ARTICLE_BIBLIOGRAPHIE" />
@@ -915,4 +923,54 @@
 			</div>
 		</IF>
 	</section>
+</DEFMACRO>
+
+
+/**
+ * Auteurs du texte enfant.
+ */
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_AUTEURS">
+	<LET VAR="idtexte">[#ID]</LET>
+
+	<LOOP NAME="pdfgen_noticejuridique_texte_auteurs" 
+		SELECT="persons.id" 
+		TABLE="relations, persons" 
+		WHERE="id1 = '[#ID]' AND id2 = persons.id AND nature = 'G' AND type = 'auteur'"
+		ORDER="degree">
+		
+		<BEFORE>
+			<section class="article__persons-infos col-12">
+				<div class="article__persons-infos-contents">
+		</BEFORE>
+
+		<DO>
+			<LOOP NAME="pdfgen_noticejuridique_texte_auteurs_auteur" 
+				SELECT="idperson, nomfamille, prenom, description, courriel" 
+				TABLE="auteurs" 
+				WHERE="id = '[#ID]' AND iddocument='[#IDTEXTE]'">
+
+				<h3 class="article__persons-infos-identity">
+					<a href="[#IDPERSON|makeurlwithid]">[#PRENOM] <span class="family-name">[#NOMFAMILLE]</span></a>
+				</h3>
+				<IF COND="[#DESCRIPTION]">
+					<IF COND="false SNE [#DESCRIPTION|strpos('<br')]">
+						[#DESCRIPTION]
+					<ELSEIF COND="false SNE [#DESCRIPTION|strpos('<p')]" />
+						[#DESCRIPTION|replace('class="description','class="article__person-description')]
+					<ELSE />
+						<p class="article__person-description">[#DESCRIPTION]</p>
+					</IF>
+				</IF>
+				<IF COND="[#COURRIEL]">
+					<a class="article__person-email" href="mailto:[#COURRIEL]">[#COURRIEL]</a>
+				</IF>
+				<MACRO NAME="PDFGEN_ARTICLE_AUTEUR_IDNO" />
+			</LOOP>
+		</DO>
+
+		<AFTER>
+				</div>
+			</section>
+		</AFTER>
+	</LOOP>
 </DEFMACRO>

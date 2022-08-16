@@ -1,11 +1,3 @@
-.article__title {
-	string-set: none;
-}
-
-.main-title {
-	string-set: title content(text);
-}
-
 .noticejuridique__texte {
 	margin-top: 4rem;
 }

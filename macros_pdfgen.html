@@ -846,6 +846,7 @@
 		<MACRO NAME="PDFGEN_ARTICLE_INIT" />
 		<MACRO NAME="PDFGEN_ARTICLE_FRONT" />
 		<div class="main">
+			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_DECISIONS"/>
 			<IF COND="[#TEXTE_ACCESSIBLE]">
 				<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTES"/>
 			<ELSE />
@@ -858,6 +859,86 @@
 </DEFMACRO>
 
 /**
+ * Décisions associées à la noticejuridique.
+ */
+<DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_DECISIONS">
+	<LOOP NAME="pdfgen_noticejuridique_decisions" TABLE="decisions" WHERE="idparent= '[#ID]'" SELECT="id, numero, numerolegifrance, date, lien, fichier, mentions, chambre, partie" ORDER="rank">
+		<BEFORE>
+			<section class="noticejuridique__decisions">
+				<LET VAR="decisions_section_title"><IF COND="[#NBRESULTS] GT 1">[@DECISIONS]<ELSE/>[@DECISION]</IF></LET>
+				<h2 class="section-header">[#DECISIONS_SECTION_TITLE]</h2>
+		</BEFORE>
+		<DO>
+			<!--[ Récupérer les index dans des variables ]-->
+			<MACRO NAME="PDFGEN_ALYODA_DECISIONS_INFOS"/>
+
+			<!--[ Lier vers le fichier PDF, sinon vers le lien ]-->
+			<IF COND="[#FICHIER]">
+				<LET VAR="href">[#ID|makeurlwithid|query_string('file', '1')]</LET>
+			<ELSE/>
+				<LET VAR="href">[#LIEN]</LET>
+			</IF>
+
+			<div class="noticejuridique__decision">
+				<h3 class="decision__title"><a href="[#HREF]" rel="noreferrer">[#DECISION_TITLE]</a></h3>
+				<IF COND="[#MENTIONS]">
+					<div class="decision__mentions">[#MENTIONS]</div>
+				</IF>
+			</div>
+		</DO>
+		<AFTER>
+			</section>
+		</AFTER>
+	</LOOP>
+</DEFMACRO>
+
+/**
+ * Création de variables avec les index liés à la décision.
+ */
+<DEFMACRO NAME="PDFGEN_ALYODA_DECISIONS_INFOS">
+	<LET ARRAY="decision_entries" GLOBAL="1"></LET>
+	<LOOP NAME="pdfgen_alyoda_decisions_infos" 
+		TABLE="relations, entries, entrytypes" 
+		SELECT="DISTINCT(idtype), title, altertitle, type AS entrytype" 
+		WHERE="id1 = '[#ID]' AND id2 = entries.id AND entries.idtype = entrytypes.id AND entrytypes.class = 'indexes'">
+		<LET ARRAY="decision_entries.#ENTRYTYPE" GLOBAL="1">
+			<LOOP NAME="alyoda_decisions_infos_item" 
+				TABLE="entries" SELECT="id, g_name" 
+				WHERE="idtype = '[#IDTYPE]' AND iddocument = '[#ID]'" 
+				ORDER="degree">
+				<IF COND="[#COUNT] GT 1">, </IF><a href="[#ID|makeurlwithid]">[#G_NAME]</a>
+			</LOOP>
+		</LET>
+	</LOOP>
+	<LET VAR="juridictions">[%DECISION_ENTRIES.JURIDICTIONS]</LET>
+	<LET VAR="codepublication">[%DECISION_ENTRIES.CODEPUBLICATION]</LET>
+	<LET VAR="decision_title"><MACRO NAME="PDFGEN_ALYODA_DECISION_TITLE"/></LET>
+</DEFMACRO>
+
+/**
+ * Calcul du titre de la décision.
+ */
+<DEFMACRO NAME="PDFGEN_ALYODA_DECISION_TITLE">
+	<LET ARRAY="decision_title_parts"></LET>
+	<IF COND="[#JURIDICTIONS]">
+		<LET ARRAY="decision_title_parts[]">[#JURIDICTIONS|textebrut|trim]<IF COND="[#CHAMBRE]">, [#CHAMBRE|textebrut]</IF></LET>
+	</IF>
+	<IF COND="[#NUMERO]">
+		<LET ARRAY="decision_title_parts[]">N°&nbsp;[#NUMERO|textebrut]</LET>
+	</IF>
+	<IF COND="[#PARTIE]">
+		<LET ARRAY="decision_title_parts[]">[#PARTIE|textebrut]</LET>
+	</IF>
+	<IF COND="[#DATE|isadate] AND [#DATE] NE '0000-00-00' AND [#DATE] NE NULL">
+		<LET ARRAY="decision_title_parts[]">[#DATE|humandate]</LET>
+	</IF>
+	<IF COND="[#CODEPUBLICATION]">
+		<LET ARRAY="decision_title_parts[]">[#CODEPUBLICATION|textebrut]</LET>
+	</IF>
+	[#DECISION_TITLE_PARTS|join(' – ')]
+</DEFMACRO>
+
+/**
  * Textes parent et enfants de la notice juridique.
  */
 <DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTES">
@@ -866,6 +947,7 @@
 
 	<LOOP NAME="pdfgen_noticejuridique_textes" TABLE="textes" WHERE="idparent = '[#ID]'" ORDER="[#NOTICEJURIDIQUE_TEXTES_ORDER]">
 		<BEFORE>
+			<h2 class="section-header"><IF COND="[#NBRESULTS] LT 2">[@TEXTE]<ELSE/>[@TEXTES]</IF></h2>
 			<!--[ Résumé de la noticejuridique (texte parent) ]-->
 			<LET VAR="titre">[@RESUME]</LET>
 			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
@@ -876,6 +958,7 @@
 		</DO>
 		<ALTERNATIVE>
 			<!--[ Texte de la noticejuridique (texte parent) uniquement ]-->
+			<h2 class="section-header">[@TEXTE]</h2>
 			<LET VAR="titre">[@RESUME]</LET>
 			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE"/>
 		</ALTERNATIVE>

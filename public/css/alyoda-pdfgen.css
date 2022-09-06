@@ -1,3 +1,11 @@
+a.url-hidden:after {
+	content: none;
+}
+
+.article__person-idnos a.url-hidden:after {
+	content: " (" attr(href) ")";
+}
+
 .main-number {
 	display: none;
 }

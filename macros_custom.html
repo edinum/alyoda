@@ -901,26 +901,25 @@
  * Texte de la notice juridique.
  */
 <DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE">
-	<div class="noticejuridique__texte">
-		<h2 class="section-header"><FUNC NAME="ALYODA_GET_TYPE_TITLE" TYPE="[#TYPE]"/></h2>
+	<section class="noticejuridique__texte">
 		<MACRO NAME="PDFGEN_ARTICLE_ADDENDUM" />
-		<section class="article__text">
-			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_HEADER"/>
-			<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_AUTEURS"/>
-			<MACRO NAME="PDFGEN_ARTICLE_TEXTE_CONTENTS" />
-		</section>
+		<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_HEADER"/>
+		<MACRO NAME="PDFGEN_ARTICLE_TEXTE_CONTENTS" />
 		<MACRO NAME="PDFGEN_ARTICLE_BIBLIOGRAPHIE" />
 		<MACRO NAME="PDFGEN_ARTICLE_ANNEXE" />
 		<MACRO NAME="PDFGEN_ARTICLE_NOTESBASPAGE" />
 		<MACRO NAME="PDFGEN_ARTICLE_NOTEFIN" />
-	</div>
+	</section>
 </DEFMACRO>
 
 /**
  * Header du texte enfant.
  */
 <DEFMACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_HEADER">
-	<section class="noticejuridique__texte-header col-12">
+	<section class="noticejuridique__texte-header">
+		<!--[ Type de document ]-->
+		<h2 class="section-header"><FUNC NAME="ALYODA_GET_TYPE_TITLE" TYPE="[#TYPE]"/></h2>
+
 		<!--[ Titre du document ]-->
 		<h1 class="article__title">[#TITRE|removenotes]</h1>
 
@@ -938,6 +937,8 @@
 				</LOOP>
 			</div>
 		</IF>
+
+		<MACRO NAME="PDFGEN_NOTICEJURIDIQUE_TEXTE_AUTEURS"/>
 	</section>
 </DEFMACRO>
 
@@ -955,7 +956,7 @@
 		ORDER="degree">
 		
 		<BEFORE>
-			<section class="article__persons-infos col-12">
+			<div class="article__persons-infos">
 				<div class="article__persons-infos-contents">
 		</BEFORE>
 
@@ -986,7 +987,7 @@
 
 		<AFTER>
 				</div>
-			</section>
+			</div>
 		</AFTER>
 	</LOOP>
 </DEFMACRO>

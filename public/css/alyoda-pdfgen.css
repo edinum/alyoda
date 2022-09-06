@@ -20,6 +20,11 @@ a.url-hidden:after {
 	list-style: none;
 }
 
+.noticejuridique__texte-header {
+	break-after: avoid;
+  break-inside: avoid;
+}
+
 .noticejuridique__texte {
 	margin-top: 4rem;
 }
